@@ -36,6 +36,7 @@ public record CreateProviderResource(
         if (firstName != null) firstName = firstName.trim();
         if (lastName != null) lastName = lastName.trim();
         if (email != null) email = email.trim();
+        if (ruc != null) ruc = ruc.trim();
 
         if (phoneNumber != null && !phoneNumber.isBlank()) {
             String digits = phoneNumber.trim().replaceAll("[\\s\\-()]", "");
