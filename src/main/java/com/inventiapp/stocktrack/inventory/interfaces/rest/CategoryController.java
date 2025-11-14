@@ -1,4 +1,4 @@
-package com.inventiapp.stocktrack.inventory.interfaces.rest.controllers;
+package com.inventiapp.stocktrack.inventory.interfaces.rest;
 
 import com.inventiapp.stocktrack.inventory.domain.model.aggregates.Category;
 import com.inventiapp.stocktrack.inventory.domain.model.queries.GetAllCategoriesQuery;

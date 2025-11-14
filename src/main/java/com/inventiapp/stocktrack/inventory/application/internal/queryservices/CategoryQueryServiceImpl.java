@@ -3,7 +3,7 @@ package com.inventiapp.stocktrack.inventory.application.internal.queryservices;
 import com.inventiapp.stocktrack.inventory.domain.model.aggregates.Category;
 import com.inventiapp.stocktrack.inventory.domain.model.queries.GetAllCategoriesQuery;
 import com.inventiapp.stocktrack.inventory.domain.services.CategoryQueryService;
-import com.inventiapp.stocktrack.inventory.infrastructure.persistence.jpa.CategoryRepository;
+import com.inventiapp.stocktrack.inventory.infrastructure.internal.CategoryRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

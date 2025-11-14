@@ -3,7 +3,7 @@ package com.inventiapp.stocktrack.inventory.application.internal.commandservices
 import com.inventiapp.stocktrack.inventory.domain.model.aggregates.Category;
 import com.inventiapp.stocktrack.inventory.domain.model.commands.CreateCategoryCommand;
 import com.inventiapp.stocktrack.inventory.domain.services.CategoryCommandService;
-import com.inventiapp.stocktrack.inventory.infrastructure.persistence.jpa.CategoryRepository;
+import com.inventiapp.stocktrack.inventory.infrastructure.internal.CategoryRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
