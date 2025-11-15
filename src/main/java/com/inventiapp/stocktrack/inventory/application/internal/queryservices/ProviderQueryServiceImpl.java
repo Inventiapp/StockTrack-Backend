@@ -11,12 +11,10 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * ProviderQueryService Implementation
- *
+ * Implementation of ProviderQueryService.
  * @summary
- * Implementation of the ProviderQueryService interface.
- * It is responsible for handling provider queries.
- *
+ * Provides read operations for Provider aggregate: list all and find by id.
+ * Read methods are marked as read-only transactions.
  * @since 1.0
  */
 @Service
@@ -29,7 +27,9 @@ public class ProviderQueryServiceImpl implements ProviderQueryService {
     }
 
     /**
-     * {@inheritDoc}
+     * Handle query to get all providers.
+     * @param query GetAllProvidersQuery
+     * @return list of providers
      */
     @Override
     public List<Provider> handle(GetAllProvidersQuery query) {
@@ -37,10 +37,12 @@ public class ProviderQueryServiceImpl implements ProviderQueryService {
     }
 
     /**
-     * {@inheritDoc}
+     * Handle query to get a provider by id.
+     * @param query GetProviderByIdQuery
+     * @return optional with provider if found
      */
     @Override
     public Optional<Provider> handle(GetProviderByIdQuery query) {
-        return providerRepository.findById(query.id());
+        return providerRepository.findById(query.providerId());
     }
 }

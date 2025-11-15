@@ -5,51 +5,28 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
- * Ruc value object
- *
+ * Value object representing a Peruvian RUC (Registro Único de Contribuyentes).
  * @summary
- * The Ruc class represents the unique tax identification number (RUC)
- * assigned to a Provider in the Inventory bounded context.
- * It ensures that every RUC value follows a valid format and encapsulates
- * validation logic at the domain level.
+ * This value object encapsulates the RUC number of a provider. It validates that the RUC
+ * is exactly 11 numeric digits. This ensures correctness at the domain level.
+ * @param value The RUC number. It must be exactly 11 digits.
+ * @see IllegalArgumentException
  * @since 1.0
  */
 @Embeddable
-@Getter
-@NoArgsConstructor
-public class Ruc {
+public record Ruc(String value) {
 
-    private String value;
+    public Ruc {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException("RUC cannot be null or empty");
+        }
 
-    /**
-     * Constructs a new Ruc instance with the specified value.
-     *
-     * @param value The RUC value to be assigned.
-     * @throws IllegalArgumentException if the RUC value is invalid.
-     */
-    public Ruc(String value) {
-        if (value == null || value.isBlank())
-            throw new IllegalArgumentException("RUC cannot be null or blank");
+        if (value.length() != 11) {
+            throw new IllegalArgumentException("RUC must have exactly 11 digits");
+        }
 
-        if (!value.matches("\\d{11}"))
-            throw new IllegalArgumentException("RUC must contain exactly 11 digits");
-
-        this.value = value;
-    }
-
-    /**
-     * Checks if the RUC value equals another RUC.
-     *
-     * @param other The Ruc instance to compare with.
-     * @return true if both RUC values are equal, false otherwise.
-     */
-    public boolean equals(Ruc other) {
-        if (other == null) return false;
-        return this.value.equals(other.value);
-    }
-
-    @Override
-    public String toString() {
-        return value;
+        if (!value.chars().allMatch(Character::isDigit)) {
+            throw new IllegalArgumentException("RUC must contain only numeric characters");
+        }
     }
 }

@@ -8,29 +8,24 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * @name ProviderQueryService
+ * Provider query service contract.
  * @summary
- * This interface represents the service responsible for handling provider queries
- * (read operations) within the Inventory bounded context.
+ * This interface defines query operations for Provider aggregate (fetch all, fetch by id).
+ * Implementations should retrieve read models or aggregate projections as required.
  * @since 1.0
  */
 public interface ProviderQueryService {
-
     /**
-     * Handles the get provider by id query.
-     *
-     * @param query the query containing the provider id
-     * @return an Optional containing the Provider when found, or an empty Optional when not found.
-     * @see GetProviderByIdQuery
-     */
-    Optional<Provider> handle(GetProviderByIdQuery query);
-
-    /**
-     * Handles the get all providers query.
-     *
-     * @param query the query object (may be extended later with paging/filtering)
-     * @return list of all providers matching the query (may be empty)
-     * @see GetAllProvidersQuery
+     * Handle query to get all providers.
+     * @param query get all providers query
+     * @return list of providers
      */
     List<Provider> handle(GetAllProvidersQuery query);
+
+    /**
+     * Handle query to get a provider by id.
+     * @param query get provider by id query
+     * @return optional with found provider
+     */
+    Optional<Provider> handle(GetProviderByIdQuery query);
 }

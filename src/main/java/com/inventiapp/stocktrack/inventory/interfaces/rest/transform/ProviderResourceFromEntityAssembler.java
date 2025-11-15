@@ -3,33 +3,43 @@ package com.inventiapp.stocktrack.inventory.interfaces.rest.transform;
 import com.inventiapp.stocktrack.inventory.domain.model.aggregates.Provider;
 import com.inventiapp.stocktrack.inventory.interfaces.rest.resources.ProviderResource;
 
-import java.util.Date;
-
 /**
- * ProviderResourceFromEntityAssembler
- * @summary
- * Converts Provider domain aggregates to ProviderResource DTOs for the REST layer.
- * @since 1.0
+ * Assembler to convert Provider aggregate into ProviderResource for API responses.
+ * It reads the Provider fields and unwraps embedded value objects safely.
  */
 public final class ProviderResourceFromEntityAssembler {
 
-    private ProviderResourceFromEntityAssembler() { }
+    private ProviderResourceFromEntityAssembler() { /* utils only */ }
 
     /**
-     * Convert a Provider aggregate to a ProviderResource.
+     * Converts a Provider entity into a ProviderResource.
+     * Null-safely unwraps embedded value objects.
      *
-     * @param provider domain Provider aggregate
-     * @return ProviderResource suitable for API responses
+     * @param provider the provider aggregate (must not be null)
+     * @return ProviderResource containing public provider data
      */
-    public static ProviderResource toResourceFromEntity(Provider provider) {
-        if (provider == null) return null;
+    public static ProviderResource toResource(Provider provider) {
+        if (provider == null) {
+            return null;
+        }
 
-        String email = provider.getEmail() == null ? null : provider.getEmail().getValue();
-        String ruc = provider.getRuc() == null ? null : provider.getRuc().getValue();
-        String phone = provider.getPhoneNumber() == null ? null : provider.getPhoneNumber().getValue();
+        String phone = null;
+        if (provider.getPhoneNumber() != null) {
+            // PhoneNumber record exposes 'number()'
+            phone = provider.getPhoneNumber().number();
+        }
 
-        Date createdAt = provider.getCreatedAt();
-        Date updatedAt = provider.getUpdatedAt();
+        String email = null;
+        if (provider.getEmail() != null) {
+            // Email record exposes 'address()'
+            email = provider.getEmail().address();
+        }
+
+        String ruc = null;
+        if (provider.getRuc() != null) {
+            // Ruc record exposes 'value()'
+            ruc = provider.getRuc().value();
+        }
 
         return new ProviderResource(
                 provider.getId(),
@@ -37,9 +47,7 @@ public final class ProviderResourceFromEntityAssembler {
                 provider.getLastName(),
                 phone,
                 email,
-                ruc,
-                createdAt,
-                updatedAt
+                ruc
         );
     }
 }

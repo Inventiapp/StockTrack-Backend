@@ -1,22 +1,19 @@
 package com.inventiapp.stocktrack.inventory.domain.model.queries;
 
 /**
- * GetProviderByIdQuery
- * @summary
- * Query object that represents the intention to fetch a Provider aggregate by its identifier.
- * This class is part of the domain query model and can be used by application query services.
- * @since 1.0
+ * Query to get provider by id.
+ * @param providerId Provider id.
  */
-public record GetProviderByIdQuery(Long id) {
-
+public record GetProviderByIdQuery(Long providerId) {
     /**
-     * Basic validation helper.
-     *
-     * @throws IllegalArgumentException if id is null or not positive.
+     * Constructor.
+     * @param providerId Provider id.
+     *                   Must be greater than 0.
+     *                   Must not be null.
+     * @throws IllegalArgumentException If the provider ID is invalid.
      */
-    public void validate() {
-        if (id == null || id <= 0) {
-            throw new IllegalArgumentException("id must be a positive non-null value");
-        }
+    public GetProviderByIdQuery {
+        if (providerId == null || providerId <= 0)
+            throw new IllegalArgumentException("providerId is required and must be greater than 0.");
     }
 }

@@ -1,154 +1,170 @@
 package com.inventiapp.stocktrack.inventory.domain.model.aggregates;
 
 import com.inventiapp.stocktrack.inventory.domain.model.commands.CreateProviderCommand;
+import com.inventiapp.stocktrack.inventory.domain.model.commands.UpdateProviderCommand;
 import com.inventiapp.stocktrack.inventory.domain.model.events.ProviderCreatedEvent;
 import com.inventiapp.stocktrack.inventory.domain.model.valueobject.Email;
 import com.inventiapp.stocktrack.inventory.domain.model.valueobject.PhoneNumber;
 import com.inventiapp.stocktrack.inventory.domain.model.valueobject.Ruc;
 import com.inventiapp.stocktrack.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.apache.logging.log4j.util.Strings;
 
 /**
  * Provider aggregate root
  * @summary
- * This aggregate root represents a provider (supplier) in the Inventory bounded context.
+ * This aggregate root models a provider (supplier) with basic contact information and
+ * a Peruvian tax identifier (RUC). Value objects are used for email, phone number and RUC
+ * to centralize validation and formatting rules.
+ * @since 1.0
  */
-@Entity
-@Table(name = "providers")
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Entity
 public class Provider extends AuditableAbstractAggregateRoot<Provider> {
 
-    @Column(name = "first_name", nullable = false)
+    @Column(nullable = false)
     private String firstName;
 
-    @Column(name = "last_name", nullable = false)
+    @Column(nullable = false)
     private String lastName;
 
     /**
-     * PhoneNumber is embedded; override the internal 'value' column to 'phone_number'.
-     * This field is required (nullable = false).
+     * Email as a value object.
+     * The embedded attribute's single field is mapped to the 'email' column.
      */
     @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "phone_number", length = 9, nullable = false))
-    private PhoneNumber phoneNumber;
-
-    /**
-     * Email is embedded; override the internal 'value' column to 'email'.
-     * email is required and unique.
-     */
-    @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "email", nullable = false, unique = true, length = 255))
+    @AttributeOverrides({
+            @AttributeOverride(name = "address", column = @Column(name = "email", nullable = true))
+    })
     private Email email;
 
     /**
-     * RUC is embedded; override the internal 'value' column to 'ruc'.
-     * This field is optional (nullable = true).
+     * Phone number as a value object.
+     * The embedded attribute's single field is mapped to the 'phone_number' column.
      */
     @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "ruc", nullable = true, length = 11))
+    @AttributeOverrides({
+            @AttributeOverride(name = "number", column = @Column(name = "phone_number", nullable = true))
+    })
+    private PhoneNumber phoneNumber;
+
+    /**
+     * RUC as a value object.
+     * The embedded attribute's single field is mapped to the 'ruc' column.
+     * Length 11 is enforced by the value object, but column length is declared for DDL generation.
+     */
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "value", column = @Column(name = "ruc", length = 11, nullable = true, unique = true))
+    })
     private Ruc ruc;
 
     /**
-     * Domain constructor receiving value objects.
-     *
-     * @param firstName provider first name (required)
-     * @param lastName  provider last name (required)
-     * @param phoneNumber provider phone as value object (required)
-     * @param email provider email as value object (required)
-     * @param ruc provider RUC as value object (optional, may be null)
+     * Default constructor required by JPA.
+     * Keeps value object fields null so JPA can instantiate the aggregate. Domain factories
+     * / application services should use the command-based constructor to create a valid aggregate.
      */
-    public Provider(String firstName,
-                    String lastName,
-                    PhoneNumber phoneNumber,
-                    Email email,
-                    Ruc ruc) {
-        validateRequired(firstName, "firstName");
-        validateRequired(lastName, "lastName");
-        if (phoneNumber == null) throw new IllegalArgumentException("PhoneNumber is required");
-        if (email == null) throw new IllegalArgumentException("Email is required");
-
-        this.firstName = firstName.trim();
-        this.lastName = lastName.trim();
-        this.phoneNumber = phoneNumber;
-        this.email = email;
-        this.ruc = ruc; // may be null
+    public Provider() {
+        super();
+        this.firstName = Strings.EMPTY;
+        this.lastName = Strings.EMPTY;
+        this.email = null;
+        this.phoneNumber = null;
+        this.ruc = null;
     }
 
     /**
-     * Factory helper to construct a Provider from a CreateProviderCommand.
-     * Converts raw strings into the appropriate value objects.
+     * Constructs a Provider from a CreateProviderCommand.
+     * Value objects are created from raw command values and will validate their content.
      *
-     * @param cmd creation command with raw strings
-     * @return new Provider aggregate
+     * @param command creation command containing provider data
+     * @see CreateProviderCommand
      */
-    public static Provider from(CreateProviderCommand cmd) {
-        if (cmd == null) throw new IllegalArgumentException("CreateProviderCommand required");
+    public Provider(CreateProviderCommand command) {
+        this();
+        this.firstName = normalize(command.firstName());
+        this.lastName = normalize(command.lastName());
+        this.email = new Email(command.email());
+        this.phoneNumber = new PhoneNumber(command.phoneNumber());
+        this.ruc = new Ruc(command.ruc());
 
-        // phone is required in this design
-        if (cmd.phoneNumber() == null || cmd.phoneNumber().trim().isEmpty()) {
-            throw new IllegalArgumentException("phoneNumber is required");
-        }
-        PhoneNumber phoneVo = new PhoneNumber(cmd.phoneNumber());
+        // Optionally publish a domain event:
+        // this.registerEvent(new ProviderCreatedEvent(this));
+    }
 
-        Email emailVo = new Email(cmd.email());
-
-        Ruc rucVo = null;
-        if (cmd.ruc() != null && !cmd.ruc().trim().isEmpty()) {
-            rucVo = new Ruc(cmd.ruc());
+    /**
+     * Update provider basic information using an UpdateProviderCommand.
+     * Any non-null field in the command will be applied. ValueObjects will validate new values.
+     *
+     * @param command update command with optional fields
+     * @return this provider instance (fluent)
+     * @see UpdateProviderCommand
+     */
+    public Provider updateInformation(UpdateProviderCommand command) {
+        if (command.firstName() != null) {
+            this.firstName = normalize(command.firstName());
         }
 
-        return new Provider(cmd.firstName(), cmd.lastName(), phoneVo, emailVo, rucVo);
-    }
-
-    /**
-     * Update provider contact information while keeping invariants.
-     *
-     * @param firstName new first name (required)
-     * @param lastName new last name (required)
-     * @param phoneNumber new phone number value object (required)
-     * @param email new email value object (required)
-     */
-    public void updateContactInfo(String firstName, String lastName, PhoneNumber phoneNumber, Email email) {
-        validateRequired(firstName, "firstName");
-        validateRequired(lastName, "lastName");
-        if (phoneNumber == null) throw new IllegalArgumentException("PhoneNumber is required");
-        if (email == null) throw new IllegalArgumentException("Email is required");
-
-        this.firstName = firstName.trim();
-        this.lastName = lastName.trim();
-        this.phoneNumber = phoneNumber;
-        this.email = email;
-    }
-
-    /**
-     * Replace the provider's RUC.
-     *
-     * @param newRuc new RUC value object (optional, may be null)
-     */
-    public void updateRuc(Ruc newRuc) {
-        this.ruc = newRuc;
-    }
-
-    /**
-     * Register ProviderCreatedEvent after persistence (so id exists).
-     */
-    public void registerCreatedEvent() {
-        String rucValue = (this.ruc == null) ? null : this.ruc.getValue();
-        String emailValue = (this.email == null) ? null : this.email.getValue();
-        this.addDomainEvent(new ProviderCreatedEvent(this.getId(), emailValue, rucValue));
-    }
-
-    private static void validateRequired(String value, String fieldName) {
-        if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException(fieldName + " is required");
+        if (command.lastName() != null) {
+            this.lastName = normalize(command.lastName());
         }
+
+        if (command.email() != null) {
+            this.email = new Email(command.email());
+        }
+
+        if (command.phoneNumber() != null) {
+            this.phoneNumber = new PhoneNumber(command.phoneNumber());
+        }
+
+        if (command.ruc() != null) {
+            this.ruc = new Ruc(command.ruc());
+        }
+
+        // Optionally publish a domain event:
+        // this.registerEvent(new ProviderUpdatedEvent(this));
+
+        return this;
+    }
+
+    /**
+     * Update only contact fields (phone and email).
+     *
+     * @param phoneNumber new phone number (raw string)
+     * @param email new email (raw string)
+     * @return this provider instance (fluent)
+     */
+    public Provider updateContact(String phoneNumber, String email) {
+        if (phoneNumber != null) {
+            this.phoneNumber = new PhoneNumber(phoneNumber);
+        }
+        if (email != null) {
+            this.email = new Email(email);
+        }
+        // Optionally register an event:
+        // this.registerEvent(new ProviderContactUpdatedEvent(this));
+        return this;
+    }
+
+    /**
+     * Returns the provider full name.
+     *
+     * @return concatenation of firstName and lastName
+     */
+    public String getFullName() {
+        return (this.firstName + " " + this.lastName).trim();
+    }
+
+    /**
+     * Normalizes text values to trimmed strings; converts null to empty string.
+     *
+     * @param value input string
+     * @return normalized string
+     */
+    private String normalize(String value) {
+        return value == null ? Strings.EMPTY : value.trim();
     }
 }

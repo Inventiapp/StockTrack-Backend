@@ -4,24 +4,24 @@ import com.inventiapp.stocktrack.inventory.domain.model.commands.CreateProviderC
 import com.inventiapp.stocktrack.inventory.interfaces.rest.resources.CreateProviderResource;
 
 /**
- * CreateProviderCommandFromResourceAssembler
- * @summary
- * Maps CreateProviderResource (API) to CreateProviderCommand (domain/application).
- * This centralizes the mapping and keeps controllers thin.
- * @since 1.0
+ * Assembler to convert a CreateProviderResource into a CreateProviderCommand.
  */
 public final class CreateProviderCommandFromResourceAssembler {
 
-    private CreateProviderCommandFromResourceAssembler() { }
+    private CreateProviderCommandFromResourceAssembler() { /* utility */ }
 
     /**
-     * Convert a CreateProviderResource to CreateProviderCommand.
+     * Converts a CreateProviderResource to a CreateProviderCommand.
      *
-     * @param resource incoming API resource
-     * @return CreateProviderCommand with raw strings (value object creation happens in domain)
+     * @param resource the incoming create resource (must not be null)
+     * @return the CreateProviderCommand
+     * @throws IllegalArgumentException if resource is null
      */
     public static CreateProviderCommand toCommandFromResource(CreateProviderResource resource) {
-        if (resource == null) return null;
+        if (resource == null) {
+            throw new IllegalArgumentException("CreateProviderResource cannot be null");
+        }
+
         return new CreateProviderCommand(
                 resource.firstName(),
                 resource.lastName(),

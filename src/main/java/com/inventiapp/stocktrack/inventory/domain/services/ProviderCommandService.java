@@ -2,27 +2,36 @@ package com.inventiapp.stocktrack.inventory.domain.services;
 
 import com.inventiapp.stocktrack.inventory.domain.model.aggregates.Provider;
 import com.inventiapp.stocktrack.inventory.domain.model.commands.CreateProviderCommand;
+import com.inventiapp.stocktrack.inventory.domain.model.commands.DeleteProviderCommand;
+import com.inventiapp.stocktrack.inventory.domain.model.commands.UpdateProviderCommand;
 
 import java.util.Optional;
 
 /**
- * @name ProviderCommandService
+ * Provider command service contract.
  * @summary
- * This interface represents the service responsible for handling provider commands
- * (write operations) within the Inventory bounded context.
+ * This interface defines command operations for Provider aggregate (create, update, delete).
+ * Implementations should execute domain logic and return identifiers or optional aggregates when appropriate.
  * @since 1.0
  */
 public interface ProviderCommandService {
+    /**
+     * Handle provider creation.
+     * @param command create provider command
+     * @return generated provider id
+     */
+    Long handle(CreateProviderCommand command);
 
     /**
-     * Handles the create provider command.
-     *
-     * @param command the create provider command
-     * @return an Optional containing the created Provider if creation succeeded,
-     *         or an empty Optional if the operation could not be completed.
-     *
-     * @throws IllegalArgumentException when validation fails (e.g. duplicate email)
-     * @see CreateProviderCommand
+     * Handle provider update.
+     * @param command update provider command
+     * @return optional with updated Provider if update succeeded
      */
-    Optional<Provider> handle(CreateProviderCommand command);
+    Optional<Provider> handle(UpdateProviderCommand command);
+
+    /**
+     * Handle provider deletion.
+     * @param command delete provider command
+     */
+    void handle(DeleteProviderCommand command);
 }

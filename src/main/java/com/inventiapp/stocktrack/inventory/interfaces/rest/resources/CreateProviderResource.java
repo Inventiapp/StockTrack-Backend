@@ -1,51 +1,42 @@
 package com.inventiapp.stocktrack.inventory.interfaces.rest.resources;
 
-import jakarta.validation.constraints.NotBlank;
-
 /**
- * CreateProviderResource
- * @summary
- * Resource used to create a Provider via REST API. Carries raw input strings which
- * will be validated and mapped to domain value objects by the application layer.
- * @since 1.0
+ * Resource used to create a Provider.
+ * Validates the incoming payload at construction time.
+ *
+ * @param firstName   provider first name (required)
+ * @param lastName    provider last name (required)
+ * @param phoneNumber provider phone number (required)
+ * @param email       provider email (required)
+ * @param ruc         provider RUC (required)
  */
 public record CreateProviderResource(
-        @NotBlank(message = "firstName is required")
         String firstName,
-
-        @NotBlank(message = "lastName is required")
         String lastName,
-
-        @NotBlank(message = "phoneNumber is required")
         String phoneNumber,
-
-        @NotBlank(message = "email is required")
         String email,
-
         String ruc
 ) {
     /**
-     * Compact constructor used to perform simple validation.
-     * - trims whitespace
-     * - checks phone format if provided
+     * Validate the resource.
      *
-     * This performs lightweight validation; domain-level validation is done
-     * when mapping to Value Objects (Email, PhoneNumber, Ruc).
+     * @throws IllegalArgumentException if any required field is null or blank.
      */
     public CreateProviderResource {
-        if (firstName != null) firstName = firstName.trim();
-        if (lastName != null) lastName = lastName.trim();
-        if (email != null) email = email.trim();
-        if (ruc != null) ruc = ruc.trim();
-
-        if (phoneNumber != null && !phoneNumber.isBlank()) {
-            String digits = phoneNumber.trim().replaceAll("[\\s\\-()]", "");
-            if (!digits.matches("\\d{9}")) {
-                throw new IllegalArgumentException("phoneNumber must be exactly 9 digits, without prefix");
-            }
-            phoneNumber = digits;
-        } else {
-            phoneNumber = null;
+        if (firstName == null || firstName.isBlank()) {
+            throw new IllegalArgumentException("firstName is required");
+        }
+        if (lastName == null || lastName.isBlank()) {
+            throw new IllegalArgumentException("lastName is required");
+        }
+        if (phoneNumber == null || phoneNumber.isBlank()) {
+            throw new IllegalArgumentException("phoneNumber is required");
+        }
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("email is required");
+        }
+        if (ruc == null || ruc.isBlank()) {
+            throw new IllegalArgumentException("ruc is required");
         }
     }
 }
