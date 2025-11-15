@@ -1,35 +1,41 @@
 package com.inventiapp.stocktrack.inventory.domain.model.events;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.AccessLevel;
+import org.springframework.context.ApplicationEvent;
 
 /**
- * ProviderCreatedEvent domain event
- *
+ * Event fired when a provider is created.
  * @summary
- * The ProviderCreatedEvent class represents the domain event that is triggered
- * when a new Provider aggregate is created in the Inventory bounded context.
- * It carries key provider information to notify other parts of the system.
+ * This event is published after a provider aggregate is successfully created.
+ * It contains the provider id and the provider snapshot (basic fields) useful for reporting.
  * @since 1.0
  */
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ProviderCreatedEvent {
-
-    private Long providerId;
-    private String email;
-    private String ruc;
+public class ProviderCreatedEvent extends ApplicationEvent {
+    private final Long providerId;
+    private final String firstName;
+    private final String lastName;
+    private final String phone;
+    private final String email;
+    private final String ruc;
 
     /**
-     * Constructs a new ProviderCreatedEvent instance.
+     * Constructor.
      *
-     * @param providerId The unique identifier of the provider.
-     * @param email The provider's email address.
-     * @param ruc The provider's RUC value.
+     * @param source    the event source (usually the aggregate or service)
+     * @param providerId the id of the created provider
+     * @param firstName  provider first name
+     * @param lastName   provider last name
+     * @param phone      provider phone number (raw)
+     * @param email      provider email (raw)
+     * @param ruc        provider ruc (raw)
      */
-    public ProviderCreatedEvent(Long providerId, String email, String ruc) {
+    public ProviderCreatedEvent(Object source, Long providerId, String firstName, String lastName, String phone, String email, String ruc) {
+        super(source);
         this.providerId = providerId;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phone = phone;
         this.email = email;
         this.ruc = ruc;
     }

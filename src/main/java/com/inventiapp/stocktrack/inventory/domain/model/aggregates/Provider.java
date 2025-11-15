@@ -3,14 +3,14 @@ package com.inventiapp.stocktrack.inventory.domain.model.aggregates;
 import com.inventiapp.stocktrack.inventory.domain.model.commands.CreateProviderCommand;
 import com.inventiapp.stocktrack.inventory.domain.model.commands.UpdateProviderCommand;
 import com.inventiapp.stocktrack.inventory.domain.model.events.ProviderCreatedEvent;
+import com.inventiapp.stocktrack.inventory.domain.model.events.ProviderDeletedEvent;
+import com.inventiapp.stocktrack.inventory.domain.model.events.ProviderUpdatedEvent;
 import com.inventiapp.stocktrack.inventory.domain.model.valueobject.Email;
 import com.inventiapp.stocktrack.inventory.domain.model.valueobject.PhoneNumber;
 import com.inventiapp.stocktrack.inventory.domain.model.valueobject.Ruc;
 import com.inventiapp.stocktrack.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.apache.logging.log4j.util.Strings;
 
 /**
@@ -78,10 +78,9 @@ public class Provider extends AuditableAbstractAggregateRoot<Provider> {
 
     /**
      * Constructs a Provider from a CreateProviderCommand.
-     * Value objects are created from raw command values and will validate their content.
+     * Registers a ProviderCreatedEvent. Note: id may be null until persisted.
      *
      * @param command creation command containing provider data
-     * @see CreateProviderCommand
      */
     public Provider(CreateProviderCommand command) {
         this();
@@ -91,8 +90,16 @@ public class Provider extends AuditableAbstractAggregateRoot<Provider> {
         this.phoneNumber = new PhoneNumber(command.phoneNumber());
         this.ruc = new Ruc(command.ruc());
 
-        // Optionally publish a domain event:
-        // this.registerEvent(new ProviderCreatedEvent(this));
+        // Register created event (aggregate-level). The id may be null if not yet persisted.
+        this.addDomainEvent(new ProviderCreatedEvent(
+                this,
+                this.getId(),            // might be null until entity is saved
+                this.firstName,
+                this.lastName,
+                this.phoneNumber != null ? this.phoneNumber.number() : null,
+                this.email != null ? this.email.address() : null,
+                this.ruc != null ? this.ruc.value() : null
+        ));
     }
 
     /**
@@ -102,6 +109,13 @@ public class Provider extends AuditableAbstractAggregateRoot<Provider> {
      * @param command update command with optional fields
      * @return this provider instance (fluent)
      * @see UpdateProviderCommand
+     */
+    /**
+     * Update provider basic information using an UpdateProviderCommand.
+     * Registers ProviderUpdatedEvent with a snapshot of the current values.
+     *
+     * @param command update command with optional fields
+     * @return this provider instance (fluent)
      */
     public Provider updateInformation(UpdateProviderCommand command) {
         if (command.firstName() != null) {
@@ -124,29 +138,28 @@ public class Provider extends AuditableAbstractAggregateRoot<Provider> {
             this.ruc = new Ruc(command.ruc());
         }
 
-        // Optionally publish a domain event:
-        // this.registerEvent(new ProviderUpdatedEvent(this));
+        // Register updated event with the new snapshot.
+        this.addDomainEvent(new ProviderUpdatedEvent(
+                this,
+                this.getId(),
+                this.firstName,
+                this.lastName,
+                this.phoneNumber != null ? this.phoneNumber.number() : null,
+                this.email != null ? this.email.address() : null,
+                this.ruc != null ? this.ruc.value() : null
+        ));
 
         return this;
     }
 
     /**
-     * Update only contact fields (phone and email).
+     * Marks the provider as deleted logically in domain terms by registering a ProviderDeletedEvent.
+     * The actual removal from the database can be done by the application service/repository.
      *
-     * @param phoneNumber new phone number (raw string)
-     * @param email new email (raw string)
-     * @return this provider instance (fluent)
+     * @param reason optional reason for deletion (may be null)
      */
-    public Provider updateContact(String phoneNumber, String email) {
-        if (phoneNumber != null) {
-            this.phoneNumber = new PhoneNumber(phoneNumber);
-        }
-        if (email != null) {
-            this.email = new Email(email);
-        }
-        // Optionally register an event:
-        // this.registerEvent(new ProviderContactUpdatedEvent(this));
-        return this;
+    public void markAsDeleted(String reason) {
+        this.addDomainEvent(new ProviderDeletedEvent(this, this.getId(), reason));
     }
 
     /**

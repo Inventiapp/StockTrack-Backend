@@ -6,14 +6,12 @@ import com.inventiapp.stocktrack.inventory.domain.model.aggregates.Provider;
 import com.inventiapp.stocktrack.inventory.domain.model.commands.CreateProviderCommand;
 import com.inventiapp.stocktrack.inventory.domain.model.commands.DeleteProviderCommand;
 import com.inventiapp.stocktrack.inventory.domain.model.commands.UpdateProviderCommand;
-import com.inventiapp.stocktrack.inventory.domain.model.valueobject.Email;
-import com.inventiapp.stocktrack.inventory.domain.model.valueobject.PhoneNumber;
-import com.inventiapp.stocktrack.inventory.domain.model.valueobject.Ruc;
+import com.inventiapp.stocktrack.inventory.domain.model.events.ProviderCreatedEvent;
+import com.inventiapp.stocktrack.inventory.domain.model.events.ProviderUpdatedEvent;
 import com.inventiapp.stocktrack.inventory.domain.services.ProviderCommandService;
 import com.inventiapp.stocktrack.inventory.infrastructure.persistence.jpa.ProviderRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -35,6 +33,9 @@ public class ProviderCommandServiceImpl implements ProviderCommandService {
 
     /**
      * Handles the creation of a provider.
+     * Registers a ProviderCreatedEvent on the persisted aggregate so the event
+     * includes the DB-assigned id.
+     *
      * @param command CreateProviderCommand with provider data
      * @return generated provider id
      */
@@ -43,20 +44,32 @@ public class ProviderCommandServiceImpl implements ProviderCommandService {
         Provider provider = new Provider(command);
         try {
             Provider saved = providerRepository.save(provider);
+
+            // Register a created event using the saved entity so the id is available.
+            saved.addDomainEvent(new ProviderCreatedEvent(
+                    saved,
+                    saved.getId(),
+                    saved.getFirstName(),
+                    saved.getLastName(),
+                    saved.getPhoneNumber() != null ? saved.getPhoneNumber().number() : null,
+                    saved.getEmail() != null ? saved.getEmail().address() : null,
+                    saved.getRuc() != null ? saved.getRuc().value() : null
+            ));
+
             return saved.getId();
         } catch (DataIntegrityViolationException ex) {
-            // Translate persistence exceptions to a domain exception with a friendly message
             throw new ProviderRequestException(ex.getMostSpecificCause() != null
                     ? ex.getMostSpecificCause().getMessage()
                     : ex.getMessage());
         } catch (RuntimeException ex) {
-            // Catch any domain validation or unexpected runtime exception and wrap it
             throw new ProviderRequestException(ex.getMessage());
         }
     }
 
     /**
      * Handles updating a provider.
+     * The aggregate's updateInformation(...) registers ProviderUpdatedEvent internally.
+     *
      * @param command UpdateProviderCommand containing provider id and updated values
      * @return Optional with updated provider if exists
      */
@@ -68,7 +81,19 @@ public class ProviderCommandServiceImpl implements ProviderCommandService {
 
         try {
             provider.updateInformation(command);
+
             Provider saved = providerRepository.save(provider);
+
+            saved.addDomainEvent(new ProviderUpdatedEvent(
+                    saved,
+                    saved.getId(),
+                    saved.getFirstName(),
+                    saved.getLastName(),
+                    saved.getPhoneNumber() != null ? saved.getPhoneNumber().number() : null,
+                    saved.getEmail() != null ? saved.getEmail().address() : null,
+                    saved.getRuc() != null ? saved.getRuc().value() : null
+            ));
+
             return Optional.of(saved);
         } catch (DataIntegrityViolationException ex) {
             throw new ProviderRequestException(ex.getMostSpecificCause() != null
@@ -81,6 +106,8 @@ public class ProviderCommandServiceImpl implements ProviderCommandService {
 
     /**
      * Handles deletion of a provider.
+     * Marks the aggregate as deleted (registers ProviderDeletedEvent) before deleting from repository.
+     *
      * @param command DeleteProviderCommand containing provider id
      */
     @Override
@@ -90,7 +117,10 @@ public class ProviderCommandServiceImpl implements ProviderCommandService {
                 .orElseThrow(() -> new ProviderNotFoundException(providerId));
 
         try {
+            provider.markAsDeleted(null);
+
             providerRepository.delete(provider);
+
         } catch (DataIntegrityViolationException ex) {
             throw new ProviderRequestException(ex.getMostSpecificCause() != null
                     ? ex.getMostSpecificCause().getMessage()
