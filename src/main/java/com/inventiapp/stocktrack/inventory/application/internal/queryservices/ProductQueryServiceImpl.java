@@ -4,7 +4,7 @@ import com.inventiapp.stocktrack.inventory.domain.model.aggregates.Product;
 import com.inventiapp.stocktrack.inventory.domain.model.queries.GetAllProductsQuery;
 import com.inventiapp.stocktrack.inventory.domain.model.queries.GetProductByIdQuery;
 import com.inventiapp.stocktrack.inventory.domain.services.ProductQueryService;
-import com.inventiapp.stocktrack.inventory.infrastructure.persistence.jpa.ProductRepository;
+import com.inventiapp.stocktrack.inventory.infrastructure.persistence.jpa.repositories.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

@@ -13,8 +13,8 @@ import com.inventiapp.stocktrack.inventory.domain.model.events.ProductDeletedEve
 import com.inventiapp.stocktrack.inventory.domain.model.events.ProductUpdatedEvent;
 import com.inventiapp.stocktrack.inventory.domain.services.ProductCommandService;
 import com.inventiapp.stocktrack.inventory.infrastructure.internal.CategoryRepository;
-import com.inventiapp.stocktrack.inventory.infrastructure.persistence.jpa.ProductRepository;
-import com.inventiapp.stocktrack.inventory.infrastructure.persistence.jpa.ProviderRepository;
+import com.inventiapp.stocktrack.inventory.infrastructure.persistence.jpa.repositories.ProductRepository;
+import com.inventiapp.stocktrack.inventory.infrastructure.persistence.jpa.repositories.ProviderRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 

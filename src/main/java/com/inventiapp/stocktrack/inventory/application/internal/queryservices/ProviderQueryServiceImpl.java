@@ -4,7 +4,7 @@ import com.inventiapp.stocktrack.inventory.domain.model.aggregates.Provider;
 import com.inventiapp.stocktrack.inventory.domain.model.queries.GetAllProvidersQuery;
 import com.inventiapp.stocktrack.inventory.domain.model.queries.GetProviderByIdQuery;
 import com.inventiapp.stocktrack.inventory.domain.services.ProviderQueryService;
-import com.inventiapp.stocktrack.inventory.infrastructure.persistence.jpa.ProviderRepository;
+import com.inventiapp.stocktrack.inventory.infrastructure.persistence.jpa.repositories.ProviderRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
