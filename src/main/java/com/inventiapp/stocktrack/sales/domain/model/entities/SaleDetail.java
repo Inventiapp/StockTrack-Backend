@@ -1,6 +1,5 @@
 package com.inventiapp.stocktrack.sales.domain.model.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.inventiapp.stocktrack.sales.domain.model.aggregates.Sale;
 import com.inventiapp.stocktrack.sales.domain.model.valueobjects.ProductId;
 import com.inventiapp.stocktrack.shared.domain.model.entities.AuditableModel;
