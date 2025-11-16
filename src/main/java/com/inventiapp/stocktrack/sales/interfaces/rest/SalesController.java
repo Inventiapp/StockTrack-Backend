@@ -1,0 +1,74 @@
+package com.inventiapp.stocktrack.sales.interfaces.rest;
+
+import com.inventiapp.stocktrack.sales.domain.model.queries.GetAllSalesQuery;
+import com.inventiapp.stocktrack.sales.domain.model.queries.GetSaleByIdQuery;
+import com.inventiapp.stocktrack.sales.domain.services.SaleCommandService;
+import com.inventiapp.stocktrack.sales.domain.services.SaleQueryService;
+import com.inventiapp.stocktrack.sales.interfaces.rest.resources.CreateSaleResource;
+import com.inventiapp.stocktrack.sales.interfaces.rest.resources.SaleResource;
+import com.inventiapp.stocktrack.sales.interfaces.rest.transform.CreateSaleCommandFromResourceAssembler;
+import com.inventiapp.stocktrack.sales.interfaces.rest.transform.SaleResourceFromEntityAssembler;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
+
+@RestController
+@RequestMapping(value = "api/v1/sales", produces = APPLICATION_JSON_VALUE)
+@Tag(name = "Sales", description = "Sales management API")
+public class SalesController {
+
+    private final SaleCommandService salesCommandService;
+    private final SaleQueryService salesQueryService;
+
+    public SalesController(SaleCommandService salesCommandService, SaleQueryService salesQueryService) {
+        this.salesCommandService = salesCommandService;
+        this.salesQueryService = salesQueryService;
+    }
+
+    @PostMapping
+    @Operation(summary = "Create Sale", description = "Creates a new sale record")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Sale created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input data"),
+            @ApiResponse(responseCode = "404", description = "Related sale not found"),
+    })
+    public ResponseEntity<SaleResource> createSale(@RequestBody CreateSaleResource resource) {
+        var createSaleCommand = CreateSaleCommandFromResourceAssembler.toCommandFromResource(resource);
+        var saleId = salesCommandService.handle(createSaleCommand);
+        if (saleId == null || saleId == 0L) {
+            return ResponseEntity.badRequest().build();
+        }
+        var getSaleByIdQuery = new GetSaleByIdQuery(saleId);
+        var sale = salesQueryService.handle(getSaleByIdQuery);
+        if (sale.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        var saleEntity = sale.get();
+        var saleResource = SaleResourceFromEntityAssembler.toResourceFromEntity(saleEntity);
+
+        return ResponseEntity.status(201).body(saleResource);
+    }
+
+    @GetMapping
+    @Operation(summary = "Get Sale by ID", description = "Retrieves a sale record by its ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Sale retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Sale not found"),
+    })
+    public ResponseEntity<List<SaleResource>> getAllSales() {
+        var sales = salesQueryService.handle(new GetAllSalesQuery());
+        var saleResources = sales.stream()
+                .map(SaleResourceFromEntityAssembler::toResourceFromEntity)
+                .toList();
+        return ResponseEntity.ok(saleResources);
+    }
+}
+
