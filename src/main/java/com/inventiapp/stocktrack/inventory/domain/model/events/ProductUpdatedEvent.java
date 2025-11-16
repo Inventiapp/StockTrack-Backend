@@ -4,13 +4,15 @@ import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 
 /**
- * Event fired when a product is created.
+ * Event fired when a product is updated.
  * @summary
- * This event is published after a product aggregate is successfully created.
- * It contains the product id and the product snapshot (basic fields) useful for reporting.
+ * This event is published after a product aggregate is updated.
+ * It contains the product id and the new snapshot of basic fields for reporting or synchronization.
+ * @since 1.0
  */
 @Getter
-public class ProductCreatedEvent extends ApplicationEvent {
+public class ProductUpdatedEvent extends ApplicationEvent {
+
     private final Long productId;
     private final String name;
     private final String description;
@@ -23,17 +25,17 @@ public class ProductCreatedEvent extends ApplicationEvent {
     /**
      * Constructor.
      *
-     * @param source        the event source (usually the aggregate or service)
-     * @param productId     the id of the created product
-     * @param name          product name
-     * @param description   product description
-     * @param categoryId    product category id
-     * @param providerId    product provider id
-     * @param minStock      minimum quantity of the product
-     * @param unitPrice     unit price of the product
-     * @param isActive      product status
+     * @param source      the event source
+     * @param productId   the id of the updated product
+     * @param name        updated product name
+     * @param description updated product description
+     * @param categoryId  updated category identifier
+     * @param providerId  updated provider identifier
+     * @param minStock    updated minimum stock level
+     * @param unitPrice   updated unit price
+     * @param isActive    updated active status
      */
-    public ProductCreatedEvent(Object source,
+    public ProductUpdatedEvent(Object source,
                                Long productId,
                                String name,
                                String description,
