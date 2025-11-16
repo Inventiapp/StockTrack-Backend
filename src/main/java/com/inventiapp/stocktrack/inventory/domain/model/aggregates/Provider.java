@@ -21,6 +21,7 @@ import org.apache.logging.log4j.util.Strings;
  * to centralize validation and formatting rules.
  * @since 1.0
  */
+@Table(name = "providers")
 @Getter
 @Entity
 public class Provider extends AuditableAbstractAggregateRoot<Provider> {
@@ -104,14 +105,6 @@ public class Provider extends AuditableAbstractAggregateRoot<Provider> {
 
     /**
      * Update provider basic information using an UpdateProviderCommand.
-     * Any non-null field in the command will be applied. ValueObjects will validate new values.
-     *
-     * @param command update command with optional fields
-     * @return this provider instance (fluent)
-     * @see UpdateProviderCommand
-     */
-    /**
-     * Update provider basic information using an UpdateProviderCommand.
      * Registers ProviderUpdatedEvent with a snapshot of the current values.
      *
      * @param command update command with optional fields
@@ -138,7 +131,6 @@ public class Provider extends AuditableAbstractAggregateRoot<Provider> {
             this.ruc = new Ruc(command.ruc());
         }
 
-        // Register updated event with the new snapshot.
         this.addDomainEvent(new ProviderUpdatedEvent(
                 this,
                 this.getId(),
