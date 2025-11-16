@@ -7,7 +7,9 @@ public class CreateSaleCommandFromResourceAssembler {
 
     public static CreateSaleCommand toCommandFromResource(CreateSaleResource resource) {
         return new CreateSaleCommand(
-                resource.totalAmount()
+                resource.staffUserId(),
+                resource.totalAmount(),
+                resource.details()
         );
     }
 }
