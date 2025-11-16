@@ -1,5 +1,5 @@
-package com.inventiapp.stocktrack.user-permision.domain.model.entities;
+package com.inventiapp.stocktrack.userpermision.domain.model.entities;
 
-public class Permision {
+public class PermissionDetail {
     
 }
