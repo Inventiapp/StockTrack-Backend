@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,11 +55,29 @@ public class SalesController {
         var saleEntity = sale.get();
         var saleResource = SaleResourceFromEntityAssembler.toResourceFromEntity(saleEntity);
 
-        return ResponseEntity.status(201).body(saleResource);
+        return new ResponseEntity<>(saleResource, HttpStatus.CREATED);
     }
 
+    @GetMapping({"/{id}"})
+    @Operation(summary = "Get a sale by id", description = "Retrieves a sale by its ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Sale retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Sale not found"),
+    })
+    public ResponseEntity<SaleResource> getSaleById(@PathVariable Long id) {
+        var getSaleByIdQuery = new GetSaleByIdQuery(id);
+        var sale = salesQueryService.handle(getSaleByIdQuery);
+        if (sale.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        var saleEntity = sale.get();
+        var saleResource = SaleResourceFromEntityAssembler.toResourceFromEntity(saleEntity);
+        return ResponseEntity.ok(saleResource);
+    }
+
+
     @GetMapping
-    @Operation(summary = "Get Sale by ID", description = "Retrieves a sale record by its ID")
+    @Operation(summary = "Get all sales", description = "Retrieves all sales")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Sale retrieved successfully"),
             @ApiResponse(responseCode = "404", description = "Sale not found"),
