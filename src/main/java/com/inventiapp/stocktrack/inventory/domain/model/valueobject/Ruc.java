@@ -1,43 +1,32 @@
 package com.inventiapp.stocktrack.inventory.domain.model.valueobject;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-import java.util.Objects;
-
+/**
+ * Value object representing a Peruvian RUC (Registro Único de Contribuyentes).
+ * @summary
+ * This value object encapsulates the RUC number of a provider. It validates that the RUC
+ * is exactly 11 numeric digits. This ensures correctness at the domain level.
+ * @param value The RUC number. It must be exactly 11 digits.
+ * @see IllegalArgumentException
+ * @since 1.0
+ */
 @Embeddable
-public class Ruc {
+public record Ruc(String value) {
 
-    @Column(name = "ruc", nullable = false, length = 11)
-    private String value;
-
-    protected Ruc() {} // JPA
-
-    public Ruc(String value) {
-        if (value == null || !isValidRuc(value)) {
-            throw new IllegalArgumentException("RUC inválido");
+    public Ruc {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException("RUC cannot be null or empty");
         }
-        this.value = value;
-    }
 
-    private boolean isValidRuc(String ruc) {
-        // Validación simple: longitud 11 y sólo dígitos.
-        return ruc.matches("\\d{11}");
-        // Si quieres, puedes implementar validación de dígito verificador real.
-    }
+        if (value.length() != 11) {
+            throw new IllegalArgumentException("RUC must have exactly 11 digits");
+        }
 
-    public String value() { return value; }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Ruc)) return false;
-        Ruc ruc = (Ruc) o;
-        return Objects.equals(value, ruc.value);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(value);
+        if (!value.chars().allMatch(Character::isDigit)) {
+            throw new IllegalArgumentException("RUC must contain only numeric characters");
+        }
     }
 }
