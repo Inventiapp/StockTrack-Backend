@@ -1,7 +1,9 @@
 package com.inventiapp.stocktrack.inventory.application.internal.commandservices;
 
+import com.inventiapp.stocktrack.inventory.domain.exceptions.CategoryNotFoundException;
 import com.inventiapp.stocktrack.inventory.domain.exceptions.ProductAlreadyExistsException;
 import com.inventiapp.stocktrack.inventory.domain.exceptions.ProductNotFoundException;
+import com.inventiapp.stocktrack.inventory.domain.exceptions.ProviderNotFoundException;
 import com.inventiapp.stocktrack.inventory.domain.model.aggregates.Product;
 import com.inventiapp.stocktrack.inventory.domain.model.commands.CreateProductCommand;
 import com.inventiapp.stocktrack.inventory.domain.model.commands.DeleteProductCommand;
@@ -10,7 +12,9 @@ import com.inventiapp.stocktrack.inventory.domain.model.events.ProductCreatedEve
 import com.inventiapp.stocktrack.inventory.domain.model.events.ProductDeletedEvent;
 import com.inventiapp.stocktrack.inventory.domain.model.events.ProductUpdatedEvent;
 import com.inventiapp.stocktrack.inventory.domain.services.ProductCommandService;
+import com.inventiapp.stocktrack.inventory.infrastructure.internal.CategoryRepository;
 import com.inventiapp.stocktrack.inventory.infrastructure.persistence.jpa.ProductRepository;
+import com.inventiapp.stocktrack.inventory.infrastructure.persistence.jpa.ProviderRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -27,9 +31,17 @@ import java.util.Optional;
 public class ProductCommandServiceImpl implements ProductCommandService {
 
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
+    private final ProviderRepository providerRepository;
 
-    public ProductCommandServiceImpl(ProductRepository productRepository) {
+    public ProductCommandServiceImpl(
+            ProductRepository productRepository,
+            CategoryRepository categoryRepository,
+            ProviderRepository providerRepository
+    ) {
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
+        this.providerRepository = providerRepository;
     }
 
     /**
@@ -43,6 +55,16 @@ public class ProductCommandServiceImpl implements ProductCommandService {
      */
     @Override
     public Long handle(CreateProductCommand command) {
+
+        Long categoryId = Long.parseLong(command.categoryId());
+        if (!categoryRepository.existsById(categoryId)) {
+            throw new CategoryNotFoundException(categoryId);
+        }
+
+        Long providerId = Long.parseLong(command.providerId());
+        if (!providerRepository.existsById(providerId)) {
+            throw new ProviderNotFoundException(providerId);
+        }
 
         if (productRepository.existsByNameAndProviderId(command.name(), command.providerId())) {
             throw new ProductAlreadyExistsException(command.name());
@@ -84,6 +106,16 @@ public class ProductCommandServiceImpl implements ProductCommandService {
     public Optional<Product> handle(UpdateProductCommand command) {
         Product product = productRepository.findById(command.productId())
                 .orElseThrow(() -> new ProductNotFoundException(command.productId()));
+
+        Long categoryId = Long.parseLong(command.categoryId());
+        if (!categoryRepository.existsById(categoryId)) {
+            throw new CategoryNotFoundException(categoryId);
+        }
+
+        Long providerId = Long.parseLong(command.providerId());
+        if (!providerRepository.existsById(providerId)) {
+            throw new ProviderNotFoundException(providerId);
+        }
 
         product.updateProduct(command);
 
