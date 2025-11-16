@@ -1,4 +1,4 @@
-package com.inventiapp.stocktrack.inventory.infrastructure.persistence.jpa;
+package com.inventiapp.stocktrack.inventory.infrastructure.persistence.jpa.repositories;
 
 import com.inventiapp.stocktrack.inventory.domain.model.aggregates.Provider;
 import org.springframework.data.jpa.repository.JpaRepository;

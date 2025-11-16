@@ -9,7 +9,7 @@ import com.inventiapp.stocktrack.inventory.domain.model.commands.UpdateProviderC
 import com.inventiapp.stocktrack.inventory.domain.model.events.ProviderCreatedEvent;
 import com.inventiapp.stocktrack.inventory.domain.model.events.ProviderUpdatedEvent;
 import com.inventiapp.stocktrack.inventory.domain.services.ProviderCommandService;
-import com.inventiapp.stocktrack.inventory.infrastructure.persistence.jpa.ProviderRepository;
+import com.inventiapp.stocktrack.inventory.infrastructure.persistence.jpa.repositories.ProviderRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 

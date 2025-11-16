@@ -1,6 +1,5 @@
-package com.inventiapp.stocktrack.inventory.interfaces.rest;
+package com.inventiapp.stocktrack.inventory.interfaces.rest.controllers;
 
-import com.inventiapp.stocktrack.inventory.domain.model.aggregates.Category;
 import com.inventiapp.stocktrack.inventory.domain.model.queries.GetAllCategoriesQuery;
 import com.inventiapp.stocktrack.inventory.domain.services.CategoryCommandService;
 import com.inventiapp.stocktrack.inventory.domain.services.CategoryQueryService;
@@ -100,4 +99,6 @@ public class CategoryController {
         return ResponseEntity.ok(categoryResources);
     }
 }
+
+
 
