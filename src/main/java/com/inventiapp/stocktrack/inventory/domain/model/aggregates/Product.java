@@ -86,7 +86,7 @@ public class Product extends AuditableAbstractAggregateRoot<Product> {
      *
      * @param command the update command
      */
-    public void update(UpdateProductCommand command) {
+    public void updateProduct(UpdateProductCommand command) {
         if (command == null) throw new IllegalArgumentException("UpdateProductCommand is required");
 
         if (command.productId() == null || command.productId() <= 0) {

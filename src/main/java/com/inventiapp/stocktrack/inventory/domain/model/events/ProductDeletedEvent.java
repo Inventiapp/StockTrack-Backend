@@ -13,18 +13,15 @@ import org.springframework.context.ApplicationEvent;
 @Getter
 public class ProductDeletedEvent extends ApplicationEvent {
     private final Long productId;
-    private final String reason;
 
     /**
      * Constructor.
      *
      * @param source    the event source (usually the aggregate or service)
      * @param productId the id of the deleted product
-     * @param reason    optional reason for deletion (may be null)
      */
-    public ProductDeletedEvent(Object source, Long productId, String reason) {
+    public ProductDeletedEvent(Object source, Long productId) {
         super(source);
         this.productId = productId;
-        this.reason = reason;
     }
 }
