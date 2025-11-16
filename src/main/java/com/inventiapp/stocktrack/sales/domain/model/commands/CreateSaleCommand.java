@@ -1,6 +1,5 @@
 package com.inventiapp.stocktrack.sales.domain.model.commands;
 
-import com.inventiapp.stocktrack.sales.domain.model.entities.SaleDetail;
 
 import java.util.List;
 

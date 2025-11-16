@@ -1,6 +1,5 @@
 package com.inventiapp.stocktrack.sales.domain.model.aggregates;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.inventiapp.stocktrack.sales.domain.model.commands.CreateSaleCommand;
 import com.inventiapp.stocktrack.sales.domain.model.entities.SaleDetail;
 import com.inventiapp.stocktrack.sales.domain.model.valueobjects.ProductId;
