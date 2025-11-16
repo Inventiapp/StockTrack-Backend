@@ -12,21 +12,6 @@ import java.util.List;
  */
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
-
-    /**
-     * Optional: find all products by provider id.
-     * @param providerId the provider id
-     * @return list of products belonging to the given provider
-     */
-    List<Product> findByProviderId(String providerId);
-
-    /**
-     * Optional: find all products by category id.
-     * @param categoryId the category id
-     * @return list of products belonging to the given category
-     */
-    List<Product> findByCategoryId(String categoryId);
-
     /**
      * Optional: check if a product exists by name and providerId
      * Useful to enforce uniqueness
