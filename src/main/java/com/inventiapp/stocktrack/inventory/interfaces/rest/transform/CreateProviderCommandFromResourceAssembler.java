@@ -6,9 +6,9 @@ import com.inventiapp.stocktrack.inventory.interfaces.rest.resources.CreateProvi
 /**
  * Assembler to convert a CreateProviderResource into a CreateProviderCommand.
  */
-public final class CreateProviderCommandFromResourceAssembler {
+public class CreateProviderCommandFromResourceAssembler {
 
-    private CreateProviderCommandFromResourceAssembler() { /* utility */ }
+    private CreateProviderCommandFromResourceAssembler() {}
 
     /**
      * Converts a CreateProviderResource to a CreateProviderCommand.

@@ -7,10 +7,7 @@ import com.inventiapp.stocktrack.inventory.interfaces.rest.resources.ProviderRes
  * Assembler to convert Provider aggregate into ProviderResource for API responses.
  * It reads the Provider fields and unwraps embedded value objects safely.
  */
-public final class ProviderResourceFromEntityAssembler {
-
-    private ProviderResourceFromEntityAssembler() { /* utils only */ }
-
+public class ProviderResourceFromEntityAssembler {
     /**
      * Converts a Provider entity into a ProviderResource.
      * Null-safely unwraps embedded value objects.
