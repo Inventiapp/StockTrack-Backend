@@ -18,4 +18,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
      * @return true if exists
      */
     boolean existsByNameAndProviderId(String name, String providerId);
+
 }
