@@ -1,6 +1,7 @@
 package com.inventiapp.stocktrack.inventory.application.internal.queryservices;
 
 import com.inventiapp.stocktrack.inventory.domain.model.aggregates.Batch;
+import com.inventiapp.stocktrack.inventory.domain.model.queries.GetAllBatchesByProductIdQuery;
 import com.inventiapp.stocktrack.inventory.domain.model.queries.GetAllBatchesQuery;
 import com.inventiapp.stocktrack.inventory.domain.model.queries.GetBatchByIdQuery;
 import com.inventiapp.stocktrack.inventory.domain.services.BatchQueryService;
@@ -44,6 +45,11 @@ public class BatchQueryServiceImpl implements BatchQueryService {
     @Override
     public List<Batch> handle(GetAllBatchesQuery query) {
         return batchRepository.findAll();
+    }
+
+    @Override
+    public Optional<Batch> handle(GetAllBatchesByProductIdQuery query) {
+        return batchRepository.findById(query.productId());
     }
 }
 

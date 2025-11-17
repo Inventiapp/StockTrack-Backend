@@ -1,6 +1,7 @@
 package com.inventiapp.stocktrack.inventory.domain.services;
 
 import com.inventiapp.stocktrack.inventory.domain.model.aggregates.Batch;
+import com.inventiapp.stocktrack.inventory.domain.model.queries.GetAllBatchesByProductIdQuery;
 import com.inventiapp.stocktrack.inventory.domain.model.queries.GetAllBatchesQuery;
 import com.inventiapp.stocktrack.inventory.domain.model.queries.GetBatchByIdQuery;
 
@@ -26,5 +27,7 @@ public interface BatchQueryService {
      * @return list of batches
      */
     List<Batch> handle(GetAllBatchesQuery query);
+
+    Optional<Batch> handle(GetAllBatchesByProductIdQuery getAllBatchesByProductIdQuery);
 }
 
