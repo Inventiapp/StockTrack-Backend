@@ -98,6 +98,7 @@ public class SalesController {
     }
 
 
+    @CrossOrigin(origins = "*")
     @GetMapping
     @Operation(summary = "Get all sales", description = "Retrieves all sales")
     @ApiResponses(value = {
