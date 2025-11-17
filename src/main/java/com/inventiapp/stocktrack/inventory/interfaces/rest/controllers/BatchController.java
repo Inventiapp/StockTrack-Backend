@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -92,7 +91,7 @@ public class BatchController {
         List<Batch> batches = batchQueryService.handle(new GetAllBatchesQuery());
         List<BatchResource> resources = batches.stream()
                 .map(BatchResourceFromEntityAssembler::toResource)
-                .collect(Collectors.toList());
+                .toList();
         return ResponseEntity.ok(resources);
     }
 

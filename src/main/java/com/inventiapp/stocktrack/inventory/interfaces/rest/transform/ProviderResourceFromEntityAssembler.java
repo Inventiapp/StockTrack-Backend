@@ -17,24 +17,21 @@ public class ProviderResourceFromEntityAssembler {
      */
     public static ProviderResource toResource(Provider provider) {
         if (provider == null) {
-            return null;
+            throw new IllegalArgumentException("Provider cannot be null");
         }
 
         String phone = null;
         if (provider.getPhoneNumber() != null) {
-            // PhoneNumber record exposes 'number()'
             phone = provider.getPhoneNumber().number();
         }
 
         String email = null;
         if (provider.getEmail() != null) {
-            // Email record exposes 'address()'
             email = provider.getEmail().address();
         }
 
         String ruc = null;
         if (provider.getRuc() != null) {
-            // Ruc record exposes 'value()'
             ruc = provider.getRuc().value();
         }
 
