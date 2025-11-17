@@ -1,6 +1,7 @@
 package com.inventiapp.stocktrack.inventory.domain.model.aggregates;
 
 import com.inventiapp.stocktrack.inventory.domain.model.commands.CreateBatchCommand;
+import com.inventiapp.stocktrack.inventory.domain.model.commands.UpdateBatchCommand;
 import com.inventiapp.stocktrack.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,7 +13,7 @@ import java.util.Date;
 
 /**
  * Batch Aggregate Root
- *
+ * <p>
  * Represents a batch in inventory.
  * Contains basic validation and inherits audit fields.
  */
@@ -59,5 +60,33 @@ public class Batch extends AuditableAbstractAggregateRoot<Batch> {
         this.quantity = command.quantity();
         this.expirationDate = command.expirationDate();
         this.receptionDate = command.receptionDate();
+    }
+
+    public void updateBatch(UpdateBatchCommand command) {
+        if (command == null) throw new IllegalArgumentException("UpdateBatchCommand is required");
+
+        if (command.newQuantity() != 0) {
+            if (command.newQuantity() < 0) {
+                throw new IllegalArgumentException("quantity cannot be negative");
+            }
+            this.quantity = command.newQuantity();
+        }
+    }
+
+    public void reduceQuantity(int amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("Reduction amount cannot be negative");
+        }
+        if (this.quantity < amount) {
+            throw new IllegalArgumentException("Insufficient quantity in batch");
+        }
+        this.quantity -= amount;
+    }
+
+    public void setQuantity(int newQuantity) {
+        if (newQuantity < 0) {
+            throw new IllegalArgumentException("Quantity cannot be negative");
+        }
+        this.quantity = newQuantity;
     }
 }

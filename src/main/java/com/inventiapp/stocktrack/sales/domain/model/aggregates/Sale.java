@@ -40,8 +40,8 @@ public class Sale extends AuditableAbstractAggregateRoot<Sale> {
         }
 
         if (Math.abs(this.totalAmount - command.totalAmount()) > 0.01) {
-            // Add exception handling as needed
-            throw new IllegalArgumentException("Total amount does not match the sum of detail items");
+            //mostrar resultado de la suma y el total esperado en el error
+            throw new IllegalArgumentException("Total amount mismatch: calculated " + this.totalAmount + ", expected " + command.totalAmount());
         }
     }
 

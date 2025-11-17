@@ -5,6 +5,7 @@ import com.inventiapp.stocktrack.inventory.domain.exceptions.ProductNotFoundExce
 import com.inventiapp.stocktrack.inventory.domain.model.aggregates.Batch;
 import com.inventiapp.stocktrack.inventory.domain.model.commands.CreateBatchCommand;
 import com.inventiapp.stocktrack.inventory.domain.model.commands.DeleteBatchCommand;
+import com.inventiapp.stocktrack.inventory.domain.model.commands.UpdateBatchCommand;
 import com.inventiapp.stocktrack.inventory.domain.model.events.BatchCreatedEvent;
 import com.inventiapp.stocktrack.inventory.domain.model.events.BatchDeletedEvent;
 import com.inventiapp.stocktrack.inventory.domain.services.BatchCommandService;
@@ -13,10 +14,12 @@ import com.inventiapp.stocktrack.inventory.infrastructure.persistence.jpa.reposi
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 /**
  * Implementation of BatchCommandService.
- * @summary
- * Performs domain operations for Batch aggregate: create and delete.
+ *
+ * @summary Performs domain operations for Batch aggregate: create and delete.
  * Exceptions from persistence layer are translated into domain-friendly exceptions.
  * @since 1.0
  */
@@ -84,6 +87,30 @@ public class BatchCommandServiceImpl implements BatchCommandService {
             batchRepository.delete(batch);
         } catch (DataIntegrityViolationException ex) {
             throw new RuntimeException("Error deleting batch: " +
+                    (ex.getMostSpecificCause() != null ? ex.getMostSpecificCause().getMessage() : ex.getMessage()));
+        }
+    }
+
+    @Override
+    public Optional<Batch> handle(UpdateBatchCommand command) {
+        Batch batch = batchRepository.findById(command.batchId())
+                .orElseThrow(() -> new BatchNotFoundException(command.batchId()));
+
+        if (!productRepository.existsById(batch.getProductId())) {
+            throw new ProductNotFoundException(batch.getProductId());
+        }
+
+        if (command.newQuantity() >= 0) {
+            batch.setQuantity(command.newQuantity());
+        } else {
+            throw new IllegalArgumentException("Quantity cannot be negative");
+        }
+
+        try {
+            Batch updated = batchRepository.save(batch);
+            return Optional.of(updated);
+        } catch (DataIntegrityViolationException ex) {
+            throw new RuntimeException("Error updating product: " +
                     (ex.getMostSpecificCause() != null ? ex.getMostSpecificCause().getMessage() : ex.getMessage()));
         }
     }

@@ -4,6 +4,7 @@ import com.inventiapp.stocktrack.inventory.domain.exceptions.BatchNotFoundExcept
 import com.inventiapp.stocktrack.inventory.domain.exceptions.ProductNotFoundException;
 import com.inventiapp.stocktrack.inventory.domain.model.aggregates.Batch;
 import com.inventiapp.stocktrack.inventory.domain.model.commands.DeleteBatchCommand;
+import com.inventiapp.stocktrack.inventory.domain.model.commands.UpdateBatchCommand;
 import com.inventiapp.stocktrack.inventory.domain.model.queries.GetAllBatchesQuery;
 import com.inventiapp.stocktrack.inventory.domain.model.queries.GetBatchByIdQuery;
 import com.inventiapp.stocktrack.inventory.domain.services.BatchCommandService;
@@ -36,7 +37,7 @@ public class BatchController {
     private final BatchQueryService batchQueryService;
 
     public BatchController(BatchCommandService batchCommandService,
-                          BatchQueryService batchQueryService) {
+                           BatchQueryService batchQueryService) {
         this.batchCommandService = batchCommandService;
         this.batchQueryService = batchQueryService;
     }
@@ -112,5 +113,25 @@ public class BatchController {
             return ResponseEntity.badRequest().build();
         }
     }
-}
 
+    @Operation(summary = "Update a batch", description = "Updates an existing batch")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Batch updated"),
+            @ApiResponse(responseCode = "400", description = "Bad request"),
+            @ApiResponse(responseCode = "404", description = "Batch not found")
+    })
+    @PutMapping("/{id}")
+    public ResponseEntity<BatchResource> updateBatch(@PathVariable Long id, @Valid @RequestBody CreateBatchResource resource) {
+        try {
+            var command = new UpdateBatchCommand(id, resource.quantity());
+            Optional<Batch> updatedOpt = batchCommandService.handle(command);
+            return updatedOpt.map(BatchResourceFromEntityAssembler::toResource)
+                    .map(ResponseEntity::ok)
+                    .orElseGet(() -> ResponseEntity.notFound().build());
+        } catch (BatchNotFoundException | ProductNotFoundException ex) {
+            return ResponseEntity.notFound().build();
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+}
