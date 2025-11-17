@@ -13,7 +13,7 @@ public record CreateSaleCommand(long staffUserId, double totalAmount, List<SaleD
             throw new IllegalArgumentException("Total amount cannot be negative");
         }
 
-        if (details == null || details.isEmpty()) { // También es bueno validar que no esté vacía
+        if (details == null || details.isEmpty()) {
             throw new IllegalArgumentException("Sale details cannot be null or empty");
         }
     }
