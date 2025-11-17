@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -67,7 +66,6 @@ public class ProviderController {
             var command = CreateProviderCommandFromResourceAssembler.toCommandFromResource(resource);
             Long createdId = providerCommandService.handle(command);
 
-            // fetch created provider to return full resource
             var opt = providerQueryService.handle(new GetProviderByIdQuery(createdId));
             return opt.map(provider -> {
                         ProviderResource response = ProviderResourceFromEntityAssembler.toResource(provider);
@@ -75,10 +73,7 @@ public class ProviderController {
                     })
                     .orElseGet(() -> ResponseEntity.badRequest().build());
 
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().build();
-        } catch (ProviderRequestException ex) {
-            // domain/persistence error while creating provider
+        } catch (IllegalArgumentException | ProviderRequestException ex) {
             return ResponseEntity.badRequest().build();
         }
     }
@@ -122,7 +117,7 @@ public class ProviderController {
         var providers = providerQueryService.handle(query);
         var resources = providers.stream()
                 .map(ProviderResourceFromEntityAssembler::toResource)
-                .collect(Collectors.toList());
+                .toList();
         return ResponseEntity.ok(resources);
     }
 
@@ -151,12 +146,10 @@ public class ProviderController {
                     .map(ResponseEntity::ok)
                     .orElseGet(() -> ResponseEntity.notFound().build());
 
-        } catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException | ProviderRequestException ex) {
             return ResponseEntity.badRequest().build();
         } catch (ProviderNotFoundException ex) {
             return ResponseEntity.notFound().build();
-        } catch (ProviderRequestException ex) {
-            return ResponseEntity.badRequest().build();
         }
     }
 

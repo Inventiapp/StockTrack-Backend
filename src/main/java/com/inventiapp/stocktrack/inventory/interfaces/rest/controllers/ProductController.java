@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -92,7 +91,7 @@ public class ProductController {
         List<Product> products = productQueryService.handle(new GetAllProductsQuery());
         List<ProductResource> resources = products.stream()
                 .map(ProductResourceFromEntityAssembler::toResource)
-                .collect(Collectors.toList());
+                .toList();
         return ResponseEntity.ok(resources);
     }
 
