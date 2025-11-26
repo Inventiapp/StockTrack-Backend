@@ -10,6 +10,7 @@ import com.inventiapp.stocktrack.sales.domain.services.SaleQueryService;
 import com.inventiapp.stocktrack.sales.interfaces.rest.resources.CreateSaleDetailResource;
 import com.inventiapp.stocktrack.sales.interfaces.rest.resources.CreateSaleResource;
 import com.inventiapp.stocktrack.sales.interfaces.rest.resources.SaleResource;
+import com.inventiapp.stocktrack.sales.interfaces.rest.transform.CreateSaleCommandFromResourceAssembler;
 import com.inventiapp.stocktrack.sales.interfaces.rest.transform.SaleResourceFromEntityAssembler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -61,7 +62,7 @@ public class SalesController {
                 totalAmount += unitPrice * item.quantity();
             }
 
-            var createSaleCommand = new CreateSaleCommand(resource.staffUserId(), totalAmount, details);
+            var createSaleCommand = CreateSaleCommandFromResourceAssembler.toCommandFromResource(resource);
             var saleId = salesCommandService.handle(createSaleCommand);
             if (saleId == null || saleId == 0L) {
                 return ResponseEntity.badRequest().build();
