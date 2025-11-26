@@ -1,6 +1,5 @@
 package com.inventiapp.stocktrack.sales.interfaces.rest;
 
-import com.inventiapp.stocktrack.sales.application.outboundservices.acl.ExternalInventoryService;
 import com.inventiapp.stocktrack.sales.domain.model.queries.GetAllSalesQuery;
 import com.inventiapp.stocktrack.sales.domain.model.queries.GetSaleByIdQuery;
 import com.inventiapp.stocktrack.sales.domain.services.SaleCommandService;
@@ -29,12 +28,10 @@ public class SalesController {
 
     private final SaleCommandService salesCommandService;
     private final SaleQueryService salesQueryService;
-    private final ExternalInventoryService externalInventoryService;
 
-    public SalesController(SaleCommandService salesCommandService, SaleQueryService salesQueryService, ExternalInventoryService externalInventoryService) {
+    public SalesController(SaleCommandService salesCommandService, SaleQueryService salesQueryService) {
         this.salesCommandService = salesCommandService;
         this.salesQueryService = salesQueryService;
-        this.externalInventoryService = externalInventoryService;
     }
 
     @PostMapping
