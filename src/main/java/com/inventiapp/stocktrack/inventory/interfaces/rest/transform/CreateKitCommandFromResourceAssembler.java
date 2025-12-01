@@ -18,7 +18,7 @@ public class CreateKitCommandFromResourceAssembler {
      */
     public static CreateKitCommand toCommandFromResource(CreateKitResource resource) {
         List<CreateKitCommand.KitItemCommand> items = resource.items().stream()
-                .map(item -> new CreateKitCommand.KitItemCommand(item.productId(), item.price()))
+                .map(item -> new CreateKitCommand.KitItemCommand(item.productId(), item.quantity(), item.price()))
                 .collect(Collectors.toList());
         
         return new CreateKitCommand(resource.name(), items);

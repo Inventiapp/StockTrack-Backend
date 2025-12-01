@@ -33,18 +33,23 @@ public record CreateKitResource(
     }
 
     /**
-     * Resource for a kit item (product with price).
+     * Resource for a kit item (product with quantity and price).
      * 
      * @param productId The product ID. Must be positive.
-     * @param price The price of the product in this kit. Must be greater than 0.
+     * @param quantity The quantity of products. Must be greater than 0.
+     * @param price The total price for the quantity of products in this kit. Must be greater than 0.
      */
     public record KitItemResource(
             Long productId,
+            Integer quantity,
             Double price
     ) {
         public KitItemResource {
             if (productId == null || productId <= 0) {
                 throw new IllegalArgumentException("Product ID must be a positive number");
+            }
+            if (quantity == null || quantity <= 0) {
+                throw new IllegalArgumentException("Quantity must be greater than 0");
             }
             if (price == null || price <= 0) {
                 throw new IllegalArgumentException("Price must be greater than 0");
