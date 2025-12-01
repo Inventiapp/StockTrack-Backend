@@ -1,0 +1,36 @@
+package com.inventiapp.stocktrack.inventory.interfaces.rest.transform;
+
+import com.inventiapp.stocktrack.inventory.domain.model.aggregates.Kit;
+import com.inventiapp.stocktrack.inventory.interfaces.rest.resources.KitResource;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * Assembler to create a KitResource from a Kit entity.
+ * @since 1.0
+ */
+public class KitResourceFromEntityAssembler {
+    /**
+     * Converts a Kit entity to a KitResource.
+     * @param entity Kit entity to convert
+     * @return KitResource created from the entity
+     */
+    public static KitResource toResourceFromEntity(Kit entity) {
+        List<KitResource.KitItemResource> items = entity.getItems().stream()
+                .map(item -> new KitResource.KitItemResource(
+                        item.getProductId(),
+                        item.getPrice()
+                ))
+                .collect(Collectors.toList());
+        
+        return new KitResource(
+                entity.getId(),
+                entity.getName(),
+                items,
+                entity.getCreatedAt(),
+                entity.getUpdatedAt()
+        );
+    }
+}
+

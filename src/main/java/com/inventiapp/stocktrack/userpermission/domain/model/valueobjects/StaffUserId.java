@@ -1,4 +1,4 @@
-package com.inventiapp.stocktrack.user-permision.domain.model.valueobjects;
+package com.inventiapp.stocktrack.userpermission.domain.model.valueobjects;
 
 public class StaffUserId {
     
