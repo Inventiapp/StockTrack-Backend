@@ -3,7 +3,6 @@ package com.inventiapp.stocktrack.inventory.domain.model.entities;
 import com.inventiapp.stocktrack.inventory.domain.model.aggregates.Kit;
 import com.inventiapp.stocktrack.shared.domain.model.entities.AuditableModel;
 import jakarta.persistence.*;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
@@ -16,14 +15,13 @@ import lombok.NoArgsConstructor;
  */
 @Entity
 @Table(name = "kit_items")
-@Getter
 @NoArgsConstructor
 public class KitItem extends AuditableModel {
 
     @Column(nullable = false)
     private Long productId;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Integer quantity;
 
     @Column(nullable = false)
@@ -57,6 +55,39 @@ public class KitItem extends AuditableModel {
         this.productId = productId;
         this.quantity = quantity;
         this.price = price;
+    }
+
+    /**
+     * Getter for productId.
+     * @return The product ID
+     */
+    public Long getProductId() {
+        return productId;
+    }
+
+    /**
+     * Getter for quantity.
+     * Returns 1 as default if quantity is null (for backward compatibility with existing records).
+     * @return The quantity, or 1 if null
+     */
+    public Integer getQuantity() {
+        return quantity != null ? quantity : 1;
+    }
+
+    /**
+     * Getter for price.
+     * @return The price
+     */
+    public Double getPrice() {
+        return price;
+    }
+
+    /**
+     * Getter for kit.
+     * @return The kit this item belongs to
+     */
+    public Kit getKit() {
+        return kit;
     }
 }
 
