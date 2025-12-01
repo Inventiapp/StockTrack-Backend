@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class InventoryContextFacadeImpl implements InventoryContextFacade {
@@ -59,7 +58,7 @@ public class InventoryContextFacadeImpl implements InventoryContextFacade {
         }
 
         var getAllBatchesByProductIdQuery = new GetAllBatchesByProductIdQuery(productId);
-        Optional<Batch> batches = batchQueryService.handle(getAllBatchesByProductIdQuery);
+        List<Batch> batches = batchQueryService.handle(getAllBatchesByProductIdQuery);
 
         // Orden FEFO: primero expiran antes
         List<Batch> sorted = batches.stream()

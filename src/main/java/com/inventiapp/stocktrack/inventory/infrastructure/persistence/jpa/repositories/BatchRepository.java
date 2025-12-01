@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Repository interface for Batch aggregate.
@@ -33,4 +34,6 @@ public interface BatchRepository extends JpaRepository<Batch, Long> {
      * @return true if exists
      */
     boolean existsByReceptionDate(Date receptionDate);
+
+    List<Batch> findByProductIdOrderByExpirationDateAsc(Long productId);
 }
