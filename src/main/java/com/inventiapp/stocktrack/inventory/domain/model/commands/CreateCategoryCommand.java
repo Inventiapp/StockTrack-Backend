@@ -17,3 +17,4 @@ public record CreateCategoryCommand(String name, String description) {
     }
 }
 
+
