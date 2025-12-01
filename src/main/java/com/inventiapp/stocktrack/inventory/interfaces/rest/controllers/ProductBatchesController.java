@@ -1,6 +1,5 @@
 package com.inventiapp.stocktrack.inventory.interfaces.rest.controllers;
 
-import com.inventiapp.stocktrack.inventory.domain.model.aggregates.Batch;
 import com.inventiapp.stocktrack.inventory.domain.model.queries.GetAllBatchesByProductIdQuery;
 import com.inventiapp.stocktrack.inventory.domain.services.BatchQueryService;
 import com.inventiapp.stocktrack.inventory.domain.services.ProductQueryService;
