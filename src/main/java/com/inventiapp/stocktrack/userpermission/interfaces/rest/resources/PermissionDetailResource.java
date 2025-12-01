@@ -1,5 +1,5 @@
-package com.inventiapp.stocktrack.userpermision.interfaces.rest.resources;
+package com.inventiapp.stocktrack.userpermission.interfaces.rest.resources;
 
-public class PermisionDetailResource {
+public class PermissionDetailResource {
     
 }
