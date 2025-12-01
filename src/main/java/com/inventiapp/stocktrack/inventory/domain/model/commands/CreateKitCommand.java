@@ -29,15 +29,20 @@ public record CreateKitCommand(
     /**
      * Represents a product item within a kit.
      * @param productId The product ID. Cannot be null or less than or equal to 0.
-     * @param price The price of the product in this kit. Cannot be null or less than or equal to 0.
+     * @param quantity The quantity of products. Cannot be null or less than or equal to 0.
+     * @param price The total price for the quantity of products in this kit. Cannot be null or less than or equal to 0.
      */
     public record KitItemCommand(
             Long productId,
+            Integer quantity,
             Double price
     ) {
         public KitItemCommand {
             if (productId == null || productId <= 0) {
                 throw new IllegalArgumentException("Product ID must be a positive number");
+            }
+            if (quantity == null || quantity <= 0) {
+                throw new IllegalArgumentException("Quantity must be greater than 0");
             }
             if (price == null || price <= 0) {
                 throw new IllegalArgumentException("Price must be greater than 0");

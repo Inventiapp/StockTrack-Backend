@@ -20,6 +20,7 @@ public class KitResourceFromEntityAssembler {
         List<KitResource.KitItemResource> items = entity.getItems().stream()
                 .map(item -> new KitResource.KitItemResource(
                         item.getProductId(),
+                        item.getQuantity(),
                         item.getPrice()
                 ))
                 .collect(Collectors.toList());

@@ -19,13 +19,15 @@ public record KitResource(
         Date updatedAt
 ) {
     /**
-     * Resource for a kit item (product with price).
+     * Resource for a kit item (product with quantity and price).
      * 
      * @param productId The product ID
-     * @param price The price of the product in this kit
+     * @param quantity The quantity of products
+     * @param price The total price for the quantity of products in this kit
      */
     public record KitItemResource(
             Long productId,
+            Integer quantity,
             Double price
     ) {}
 }

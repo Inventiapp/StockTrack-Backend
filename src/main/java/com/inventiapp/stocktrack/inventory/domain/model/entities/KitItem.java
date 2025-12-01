@@ -24,6 +24,9 @@ public class KitItem extends AuditableModel {
     private Long productId;
 
     @Column(nullable = false)
+    private Integer quantity;
+
+    @Column(nullable = false)
     private Double price;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -34,20 +37,25 @@ public class KitItem extends AuditableModel {
      * Constructor for KitItem.
      * @param kit The kit this item belongs to
      * @param productId The product ID
-     * @param price The price of the product in this kit
+     * @param quantity The quantity of products
+     * @param price The total price for the quantity of products in this kit
      */
-    public KitItem(Kit kit, Long productId, Double price) {
+    public KitItem(Kit kit, Long productId, Integer quantity, Double price) {
         if (kit == null) {
             throw new IllegalArgumentException("Kit cannot be null");
         }
         if (productId == null || productId <= 0) {
             throw new IllegalArgumentException("Product ID must be a positive number");
         }
+        if (quantity == null || quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be greater than 0");
+        }
         if (price == null || price <= 0) {
             throw new IllegalArgumentException("Price must be greater than 0");
         }
         this.kit = kit;
         this.productId = productId;
+        this.quantity = quantity;
         this.price = price;
     }
 }

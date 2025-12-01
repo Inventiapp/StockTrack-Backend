@@ -55,10 +55,13 @@ public class Kit extends AuditableAbstractAggregateRoot<Kit> {
             if (item.productId() == null || item.productId() <= 0) {
                 throw new IllegalArgumentException("Product ID must be a positive number");
             }
+            if (item.quantity() == null || item.quantity() <= 0) {
+                throw new IllegalArgumentException("Quantity must be greater than 0");
+            }
             if (item.price() == null || item.price() <= 0) {
                 throw new IllegalArgumentException("Price must be greater than 0");
             }
-            this.items.add(new KitItem(this, item.productId(), item.price()));
+            this.items.add(new KitItem(this, item.productId(), item.quantity(), item.price()));
         }
     }
 }
