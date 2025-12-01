@@ -39,7 +39,6 @@ public class BatchQueryServiceImpl implements BatchQueryService {
 
     @Override
     public List<Batch> handle(GetAllBatchesByProductIdQuery query) {
-        // Usar el método correcto del repositorio (orden FEFO)
         return batchRepository.findByProductIdOrderByExpirationDateAsc(query.productId());
     }
 }
