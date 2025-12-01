@@ -28,6 +28,6 @@ public interface BatchQueryService {
      */
     List<Batch> handle(GetAllBatchesQuery query);
 
-    Optional<Batch> handle(GetAllBatchesByProductIdQuery getAllBatchesByProductIdQuery);
+    List<Batch> handle(GetAllBatchesByProductIdQuery getAllBatchesByProductIdQuery);
 }
 
