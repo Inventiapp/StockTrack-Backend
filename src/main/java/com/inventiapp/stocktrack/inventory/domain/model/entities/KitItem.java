@@ -21,7 +21,7 @@ public class KitItem extends AuditableModel {
     @Column(nullable = false)
     private Long productId;
 
-    @Column(nullable = true)
+    @Column(nullable = true, columnDefinition = "INT DEFAULT 1")
     private Integer quantity;
 
     @Column(nullable = false)
