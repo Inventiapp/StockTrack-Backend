@@ -22,6 +22,7 @@ public class SaleResourceFromEntityAssembler {
         return new SaleResource(
                 entity.getId(),
                 entity.getTotalAmount(),
+                entity.getCreatedAt(),
                 detailsResource
         );
     }
