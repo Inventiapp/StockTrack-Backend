@@ -15,12 +15,12 @@ public class OpenApiConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
             .servers(List.of(
-                    new Server()
-                            .url("http://localhost:8080")
-                            .description("Local Development Server"),
                 new Server()
                     .url("https://stocktrack-backend-production.up.railway.app")
-                    .description("Production Server")
+                    .description("Production Server"),
+                    new Server()
+                            .url("http://localhost:8080")
+                            .description("Local Development Server")
 
             ))
             .info(new Info()
