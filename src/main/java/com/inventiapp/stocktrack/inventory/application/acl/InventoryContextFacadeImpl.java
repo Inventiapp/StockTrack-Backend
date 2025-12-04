@@ -1,11 +1,14 @@
 package com.inventiapp.stocktrack.inventory.application.acl;
 
 import com.inventiapp.stocktrack.inventory.domain.model.aggregates.Batch;
+import com.inventiapp.stocktrack.inventory.domain.model.aggregates.Kit;
 import com.inventiapp.stocktrack.inventory.domain.model.commands.UpdateBatchCommand;
 import com.inventiapp.stocktrack.inventory.domain.model.queries.GetAllBatchesByProductIdQuery;
+import com.inventiapp.stocktrack.inventory.domain.model.queries.GetKitByIdQuery;
 import com.inventiapp.stocktrack.inventory.domain.model.queries.GetProductByIdQuery;
 import com.inventiapp.stocktrack.inventory.domain.services.BatchCommandService;
 import com.inventiapp.stocktrack.inventory.domain.services.BatchQueryService;
+import com.inventiapp.stocktrack.inventory.domain.services.KitQueryService;
 import com.inventiapp.stocktrack.inventory.domain.services.ProductCommandService;
 import com.inventiapp.stocktrack.inventory.domain.services.ProductQueryService;
 import com.inventiapp.stocktrack.inventory.interfaces.acl.InventoryContextFacade;
@@ -14,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class InventoryContextFacadeImpl implements InventoryContextFacade {
@@ -22,13 +26,15 @@ public class InventoryContextFacadeImpl implements InventoryContextFacade {
     private final ProductCommandService productCommandService;
     private final BatchQueryService batchQueryService;
     private final BatchCommandService batchCommandService;
+    private final KitQueryService kitQueryService;
 
 
-    public InventoryContextFacadeImpl(ProductQueryService productQueryService, ProductCommandService productCommandService, BatchQueryService batchQueryService, BatchCommandService batchCommandService) {
+    public InventoryContextFacadeImpl(ProductQueryService productQueryService, ProductCommandService productCommandService, BatchQueryService batchQueryService, BatchCommandService batchCommandService, KitQueryService kitQueryService) {
         this.productQueryService = productQueryService;
         this.productCommandService = productCommandService;
         this.batchQueryService = batchQueryService;
         this.batchCommandService = batchCommandService;
+        this.kitQueryService = kitQueryService;
     }
 
 
@@ -94,6 +100,71 @@ public class InventoryContextFacadeImpl implements InventoryContextFacade {
         var getProductByIdQuery = new GetProductByIdQuery(productId);
         var result = productQueryService.handle(getProductByIdQuery);
         return result.map(product -> product.getUnitPrice()).orElse(null);
+    }
+
+    @Override
+    public Long getKitById(Long kitId) {
+        var getKitByIdQuery = new GetKitByIdQuery(kitId);
+        var result = kitQueryService.handle(getKitByIdQuery);
+        return result.map(Kit::getId).orElse(null);
+    }
+
+    @Override
+    public Double getKitTotalPrice(Long kitId) {
+        var getKitByIdQuery = new GetKitByIdQuery(kitId);
+        var result = kitQueryService.handle(getKitByIdQuery);
+        if (result.isEmpty()) {
+            return null;
+        }
+        Kit kit = result.get();
+        // Calculate total price: sum of (unit price * quantity) for each item
+        // The price in KitItem is unit price, so we multiply by quantity
+        return kit.getItems().stream()
+                .mapToDouble(item -> item.getPrice() * item.getQuantity())
+                .sum();
+    }
+
+    @Override
+    public List<Object[]> getKitProductIdsQuantitiesAndPrices(Long kitId) {
+        var getKitByIdQuery = new GetKitByIdQuery(kitId);
+        var result = kitQueryService.handle(getKitByIdQuery);
+        if (result.isEmpty()) {
+            return List.of();
+        }
+        Kit kit = result.get();
+        // Return list of [productId, quantity, price] arrays
+        return kit.getItems().stream()
+                .map(item -> new Object[]{
+                    item.getProductId(), 
+                    item.getQuantity(), 
+                    item.getPrice()
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void decreaseStockForKit(Long kitId, Integer kitQuantity) {
+        if (kitId == null || kitId <= 0) {
+            throw new IllegalArgumentException("kitId inválido");
+        }
+        if (kitQuantity == null || kitQuantity <= 0) {
+            throw new IllegalArgumentException("kitQuantity inválida");
+        }
+
+        // Get all products, quantities and prices from the kit
+        List<Object[]> kitItems = getKitProductIdsQuantitiesAndPrices(kitId);
+        if (kitItems.isEmpty()) {
+            throw new IllegalArgumentException("Kit no encontrado: " + kitId);
+        }
+
+        // For each item in the kit, decrease stock by (item quantity * kit quantity)
+        for (Object[] item : kitItems) {
+            Long productId = (Long) item[0];
+            Integer itemQuantity = (Integer) item[1];
+            int totalQuantity = itemQuantity * kitQuantity;
+            decreaseStock(productId, totalQuantity);
+        }
     }
 
 //    @Override

@@ -23,6 +23,7 @@ public class SaleCommandServiceImpl implements SaleCommandService {
     @Override
     @Transactional
     public Long handle(CreateSaleCommand command) {
+        // Validate all products exist (kits are already validated when creating details)
         for (SaleDetailItem item : command.details()) {
             if (!externalInventoryService.checkProductExists(item.productId())) {
                 throw new IllegalArgumentException("El producto con ID " + item.productId() + " no existe.");
