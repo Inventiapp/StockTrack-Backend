@@ -15,6 +15,7 @@ public record KitResource(
         Long id,
         String name,
         List<KitItemResource> items,
+        Double totalPrice,
         Date createdAt,
         Date updatedAt
 ) {

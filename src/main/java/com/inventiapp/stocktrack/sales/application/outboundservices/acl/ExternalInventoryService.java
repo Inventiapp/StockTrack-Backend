@@ -4,6 +4,8 @@ import com.inventiapp.stocktrack.inventory.interfaces.acl.InventoryContextFacade
 import com.inventiapp.stocktrack.sales.domain.model.aggregates.Sale;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ExternalInventoryService {
     private final InventoryContextFacade inventoryContextFacade;
@@ -39,6 +41,19 @@ public class ExternalInventoryService {
 
     public Double getProductUnitPrice(Long productId) {
         return inventoryContextFacade.getProductUnitPrice(productId);
+    }
+
+    public boolean checkKitExists(Long kitId) {
+        Long result = inventoryContextFacade.getKitById(kitId);
+        return result != null;
+    }
+
+    public Double getKitTotalPrice(Long kitId) {
+        return inventoryContextFacade.getKitTotalPrice(kitId);
+    }
+
+    public List<Object[]> getKitProductIdsQuantitiesAndPrices(Long kitId) {
+        return inventoryContextFacade.getKitProductIdsQuantitiesAndPrices(kitId);
     }
 
 }
