@@ -5,6 +5,7 @@ import com.inventiapp.stocktrack.sales.domain.model.queries.GetSaleByIdQuery;
 import com.inventiapp.stocktrack.sales.domain.services.SaleCommandService;
 import com.inventiapp.stocktrack.sales.domain.services.SaleQueryService;
 import com.inventiapp.stocktrack.sales.interfaces.rest.resources.CreateSaleResource;
+import com.inventiapp.stocktrack.sales.interfaces.rest.resources.ErrorResponse;
 import com.inventiapp.stocktrack.sales.interfaces.rest.resources.SaleResource;
 import com.inventiapp.stocktrack.sales.interfaces.rest.transform.CreateSaleCommandFromResourceAssembler;
 import com.inventiapp.stocktrack.sales.interfaces.rest.transform.SaleResourceFromEntityAssembler;
@@ -41,13 +42,14 @@ public class SalesController {
             @ApiResponse(responseCode = "400", description = "Invalid input data"),
             @ApiResponse(responseCode = "404", description = "Related sale not found"),
     })
-    public ResponseEntity<SaleResource> createSale(@RequestBody CreateSaleResource resource) {
+    public ResponseEntity<?> createSale(@RequestBody CreateSaleResource resource) {
         try {
             var createSaleCommand = CreateSaleCommandFromResourceAssembler.toCommandFromResource(resource);
 
             var saleId = salesCommandService.handle(createSaleCommand);
             if (saleId == null || saleId == 0L) {
-                return ResponseEntity.badRequest().build();
+                return ResponseEntity.badRequest()
+                        .body(new ErrorResponse("Failed to create sale"));
             }
 
             var sale = salesQueryService.handle(new GetSaleByIdQuery(saleId));
@@ -58,7 +60,17 @@ public class SalesController {
             var saleResource = SaleResourceFromEntityAssembler.toResourceFromEntity(sale.get());
             return new ResponseEntity<>(saleResource, HttpStatus.CREATED);
         } catch (IllegalArgumentException ex) {
-            return ResponseEntity.badRequest().build();
+            // Log the error for debugging
+            System.err.println("Error creating sale: " + ex.getMessage());
+            ex.printStackTrace();
+            return ResponseEntity.badRequest()
+                    .body(new ErrorResponse(ex.getMessage()));
+        } catch (Exception ex) {
+            // Log unexpected errors
+            System.err.println("Unexpected error creating sale: " + ex.getMessage());
+            ex.printStackTrace();
+            return ResponseEntity.badRequest()
+                    .body(new ErrorResponse("Unexpected error: " + ex.getMessage()));
         }
     }
 

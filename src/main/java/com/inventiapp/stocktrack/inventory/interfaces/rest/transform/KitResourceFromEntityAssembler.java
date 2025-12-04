@@ -25,10 +25,17 @@ public class KitResourceFromEntityAssembler {
                 ))
                 .collect(Collectors.toList());
         
+        // Calculate total price: sum of (unit price * quantity) for each item
+        // The price in KitItem is unit price, so we multiply by quantity
+        Double totalPrice = items.stream()
+                .mapToDouble(item -> item.price() * item.quantity())
+                .sum();
+        
         return new KitResource(
                 entity.getId(),
                 entity.getName(),
                 items,
+                totalPrice,
                 entity.getCreatedAt(),
                 entity.getUpdatedAt()
         );
