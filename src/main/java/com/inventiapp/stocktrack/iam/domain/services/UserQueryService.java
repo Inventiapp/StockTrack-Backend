@@ -3,7 +3,6 @@ package com.inventiapp.stocktrack.iam.domain.services;
 import com.inventiapp.stocktrack.iam.domain.model.aggregates.User;
 import com.inventiapp.stocktrack.iam.domain.model.queries.GetAllUsersQuery;
 import com.inventiapp.stocktrack.iam.domain.model.queries.GetUserByIdQuery;
-import com.inventiapp.stocktrack.iam.domain.model.queries.GetUserByEmailQuery;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,12 +25,5 @@ public interface UserQueryService {
      * @return Optional User
      */
     Optional<User> handle(GetUserByIdQuery query);
-
-    /**
-     * Handle get user by email query
-     * @param query The query with email
-     * @return Optional User
-     */
-    Optional<User> handle(GetUserByEmailQuery query);
 }
 
