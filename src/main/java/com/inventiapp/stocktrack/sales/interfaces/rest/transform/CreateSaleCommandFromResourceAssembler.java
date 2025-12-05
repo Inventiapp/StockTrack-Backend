@@ -7,7 +7,6 @@ import com.inventiapp.stocktrack.sales.interfaces.rest.resources.CreateSaleResou
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Component

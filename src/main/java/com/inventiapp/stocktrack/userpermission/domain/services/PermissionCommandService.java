@@ -1,7 +1,6 @@
 package com.inventiapp.stocktrack.userpermission.domain.services;
 
 import com.inventiapp.stocktrack.userpermission.domain.model.commands.CreatePermissionCommand;
-import java.util.Optional;
 
 public interface PermissionCommandService {
     /**
