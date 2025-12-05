@@ -18,7 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * REST Controller for authentication endpoints
+ * AuthenticationController
  */
 @RestController
 @RequestMapping(value = "/api/v1/authentication", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -28,6 +28,11 @@ public class AuthenticationController {
     private final UserCommandService userCommandService;
     private final TokenService tokenService;
 
+    /**
+     * Constructor
+     * @param userCommandService The {@link UserCommandService} instance
+     * @param tokenService The {@link TokenService} instance
+     */
     public AuthenticationController(UserCommandService userCommandService, TokenService tokenService) {
         this.userCommandService = userCommandService;
         this.tokenService = tokenService;
@@ -35,8 +40,8 @@ public class AuthenticationController {
 
     /**
      * Sign in endpoint
-     * @param signInResource The sign-in resource
-     * @return Authenticated user resource with JWT token
+     * @param signInResource The {@link SignInResource} instance
+     * @return A {@link AuthenticatedUserResource} resource for the authenticated user with JWT token, or an unauthorized response if credentials are invalid
      */
     @PostMapping("/sign-in")
     @Operation(summary = "Sign in", description = "Authenticate a user and return a JWT token")
@@ -61,8 +66,8 @@ public class AuthenticationController {
 
     /**
      * Sign up endpoint
-     * @param signUpResource The sign-up resource
-     * @return Authenticated user resource with JWT token
+     * @param signUpResource The {@link SignUpResource} instance
+     * @return A {@link AuthenticatedUserResource} resource for the created and authenticated user with JWT token, or a bad request response if the user could not be created
      */
     @PostMapping("/sign-up")
     @Operation(summary = "Sign up", description = "Register a new user and automatically authenticate")
@@ -79,7 +84,6 @@ public class AuthenticationController {
         }
         
         var user = result.get();
-        // Generate token for the newly created user
         var token = tokenService.generateToken(user.getEmail());
         var authenticatedUserResource = AuthenticatedUserResourceFromEntityAssembler.toResourceFromEntity(user, token);
         

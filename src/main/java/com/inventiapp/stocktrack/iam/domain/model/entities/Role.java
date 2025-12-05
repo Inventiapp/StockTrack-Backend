@@ -32,11 +32,11 @@ public class Role {
     }
 
     /**
-     * Get the default role for new users
-     * @return Role with ROLE_SELLER
+     * Get the default role for new users (created by admin)
+     * @return Role with ROLE_USER
      */
     public static Role getDefaultRole() {
-        return new Role(Roles.ROLE_SELLER);
+        return new Role(Roles.ROLE_USER);
     }
 
     /**

@@ -4,14 +4,13 @@ import com.inventiapp.stocktrack.iam.domain.model.entities.Role;
 import com.inventiapp.stocktrack.iam.interfaces.rest.resources.RoleResource;
 
 /**
- * Assembler to convert Role entity to RoleResource
+ * Assembler to convert a Role entity to a RoleResource.
  */
 public class RoleResourceFromEntityAssembler {
-
     /**
-     * Convert role entity to role resource
-     * @param role The role entity
-     * @return RoleResource
+     * Converts a Role entity to a RoleResource.
+     * @param role The {@link Role} entity to convert.
+     * @return The {@link RoleResource} resource.
      */
     public static RoleResource toResourceFromEntity(Role role) {
         return new RoleResource(
