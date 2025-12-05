@@ -1,32 +1,19 @@
 package com.inventiapp.stocktrack.iam.interfaces.rest.transform;
 
 import com.inventiapp.stocktrack.iam.domain.model.commands.SignUpCommand;
-import com.inventiapp.stocktrack.iam.domain.model.entities.Role;
 import com.inventiapp.stocktrack.iam.interfaces.rest.resources.SignUpResource;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * Assembler to convert SignUpResource to SignUpCommand
+ * Assembler to convert a SignUpResource to a SignUpCommand.
  */
 public class SignUpCommandFromResourceAssembler {
-
     /**
-     * Convert resource to command
-     * @param resource The sign-up resource
-     * @return SignUpCommand
+     * Converts a SignUpResource to a SignUpCommand.
+     * @param resource The {@link SignUpResource} resource to convert.
+     * @return The {@link SignUpCommand} command.
      */
     public static SignUpCommand toCommandFromResource(SignUpResource resource) {
-        List<Role> roles = new ArrayList<>();
-        
-        if (resource.roles() != null && !resource.roles().isEmpty()) {
-            roles = resource.roles().stream()
-                    .map(Role::toRoleFromName)
-                    .toList();
-        }
-        
-        return new SignUpCommand(resource.email(), resource.password(), roles);
+        return new SignUpCommand(resource.email(), resource.password());
     }
 }
 
