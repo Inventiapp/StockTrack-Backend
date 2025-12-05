@@ -66,7 +66,6 @@ public class InventoryContextFacadeImpl implements InventoryContextFacade {
         var getAllBatchesByProductIdQuery = new GetAllBatchesByProductIdQuery(productId);
         List<Batch> batches = batchQueryService.handle(getAllBatchesByProductIdQuery);
 
-        // Orden FEFO: primero expiran antes
         List<Batch> sorted = batches.stream()
                 .sorted(Comparator.comparing(Batch::getExpirationDate))
                 .toList();

@@ -72,8 +72,13 @@ public class UserCommandServiceImpl implements UserCommandService {
             throw new RuntimeException("Invalid password");
         }
 
-        var token = tokenService.generateToken(command.email());
-        return Optional.of(ImmutablePair.of(user.get(), token));
+        var userEntity = user.get();
+        var token = tokenService.generateToken(
+                userEntity.getId(),
+                userEntity.getEmail(),
+                userEntity.getRolesAsStringList()
+        );
+        return Optional.of(ImmutablePair.of(userEntity, token));
     }
 
     /**

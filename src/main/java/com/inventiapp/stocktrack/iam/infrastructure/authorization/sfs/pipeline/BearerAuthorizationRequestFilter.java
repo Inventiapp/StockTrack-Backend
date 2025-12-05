@@ -43,11 +43,12 @@ public class BearerAuthorizationRequestFilter extends OncePerRequestFilter {
             String token = tokenService.getBearerTokenFrom(request);
             
             if (token != null && tokenService.validateToken(token)) {
-                String email = tokenService.getUsernameFromToken(token);
-                var userDetails = userDetailsService.loadUserByUsername(email);
-                var authentication = UsernamePasswordAuthenticationTokenBuilder.build(userDetails, request);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-                LOGGER.debug("User '{}' authenticated successfully", email);
+                String email = tokenService.getEmailFromToken(token);
+                if (email != null) {
+                    var userDetails = userDetailsService.loadUserByUsername(email);
+                    var authentication = UsernamePasswordAuthenticationTokenBuilder.build(userDetails, request);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
             }
         } catch (Exception e) {
             LOGGER.error("Cannot set user authentication: {}", e.getMessage());

@@ -1,7 +1,11 @@
 package com.inventiapp.stocktrack.iam.infrastructure.tokens.jwt.services;
 
 import com.inventiapp.stocktrack.iam.infrastructure.tokens.jwt.BearerTokenService;
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,7 +18,9 @@ import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * JWT implementation of TokenService
@@ -42,38 +48,92 @@ public class TokenServiceImpl implements BearerTokenService {
     }
 
     /**
-     * Build a JWT token with the given email
+     * Build a JWT token with the given user information
      */
-    private String buildTokenWithDefaultParameters(String email) {
+    private String buildTokenWithDefaultParameters(Long userId, String email, List<String> roles) {
         Date issuedAt = new Date();
         Date expiration = new Date(issuedAt.getTime() + (long) expirationDays * 24 * 60 * 60 * 1000);
 
-        return Jwts.builder()
-                .subject(email)
+        var builder = Jwts.builder()
+                .subject(String.valueOf(userId))
+                .claim("email", email)
                 .issuedAt(issuedAt)
-                .expiration(expiration)
-                .signWith(getSigningKey())
+                .expiration(expiration);
+
+        // Add roles claim if provided
+        if (roles != null && !roles.isEmpty()) {
+            builder.claim("roles", roles);
+        }
+
+        return builder.signWith(getSigningKey())
                 .compact();
     }
 
     @Override
-    public String generateToken(String email) {
-        return buildTokenWithDefaultParameters(email);
+    public String generateToken(Long userId, String email, List<String> roles) {
+        return buildTokenWithDefaultParameters(userId, email, roles);
     }
 
     @Override
     public String generateToken(Authentication authentication) {
-        return buildTokenWithDefaultParameters(authentication.getName());
+        String email = authentication.getName();
+        return buildTokenWithDefaultParameters(null, email, new ArrayList<>());
     }
 
     @Override
-    public String getUsernameFromToken(String token) {
-        return Jwts.parser()
+    public Long getUserIdFromToken(String token) {
+        String subject = Jwts.parser()
                 .verifyWith(getSigningKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload()
                 .getSubject();
+        try {
+            return Long.parseLong(subject);
+        } catch (NumberFormatException e) {
+            LOGGER.error("Token subject is not a valid user ID: {}", subject);
+            return null;
+        }
+    }
+
+    @Override
+    public String getEmailFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        
+        // Try to get email from claim first
+        String email = claims.get("email", String.class);
+        if (email != null) {
+            return email;
+        }
+        
+        // Fallback: if email is not in claims, subject might be email (backward compatibility)
+        String subject = claims.getSubject();
+        if (subject != null && subject.contains("@")) {
+            return subject;
+        }
+        
+        return null;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<String> getRolesFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        
+        Object rolesObj = claims.get("roles");
+        if (rolesObj instanceof List) {
+            return (List<String>) rolesObj;
+        }
+        
+        return new ArrayList<>();
     }
 
     @Override
