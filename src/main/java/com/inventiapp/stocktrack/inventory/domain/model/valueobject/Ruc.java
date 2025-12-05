@@ -1,8 +1,6 @@
 package com.inventiapp.stocktrack.inventory.domain.model.valueobject;
 
 import jakarta.persistence.Embeddable;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  * Value object representing a Peruvian RUC (Registro Único de Contribuyentes).
